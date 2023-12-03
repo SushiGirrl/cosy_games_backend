@@ -6,7 +6,8 @@ const db = require("mysql2");
 const cors = require("cors");
 
 const app = express();
-const port = 4000;
+//had change port from "4000" (IDK why)
+const port = 3000;
 
 app.use(cors());
 app.use(express.json());
@@ -22,6 +23,13 @@ const connection = db.createConnection({
 });
 app.get(`/hello`,(req,res) =>{
     res.send('Hello');
+});
+
+//endpoint that displays all data of all games
+app.get(`/all`,(req,res) =>{
+    connection.query('SELECT * FROM games',(error, results) =>{
+        res.send(results);
+    });
 });
 
 //catches all endpoints that don´t exist yet and returns error 404
