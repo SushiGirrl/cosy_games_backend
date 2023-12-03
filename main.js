@@ -11,6 +11,7 @@ const port = 4000;
 app.use(cors());
 app.use(express.json());
 
+//can´t connect to server
 //Host, user, password database
 const connection = db.createConnection({
     host: "localhost",
