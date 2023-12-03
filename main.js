@@ -14,10 +14,11 @@ app.use(express.json());
 //can´t connect to server.
 //Host, user, password database
 const connection = db.createConnection({
-    host: "localhost",
+    //had to change "localhost" to mysql hostname under "mannage connections"
+    host: "127.0.0.1",
     user: "root",
     password: "Khfx5cvf1cb#",
-    database: "pokemon"
+    database: "cosy_games"
 });
 app.get(`/hello`,(req,res) =>{
     res.send('Hello');
