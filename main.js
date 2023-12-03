@@ -26,10 +26,52 @@ app.get(`/hello`,(req,res) =>{
 });
 
 //endpoint that displays all data of all games
-app.get(`/all`,(req,res) =>{
+app.get(`/games/all`,(req,res) =>{
     connection.query('SELECT * FROM games',(error, results) =>{
         res.send(results);
     });
+});
+
+app.get(`/consoles/all`,(req,res) =>{
+    connection.query('SELECT * FROM consoles',(error, results) =>{
+        res.send(results);
+    });
+});
+
+app.get(`/users/all`,(req,res) =>{
+    connection.query('SELECT * FROM users',(error, results) =>{
+        res.send(results);
+    });
+});
+
+app.get(`/games_consoles/all`,(req,res) =>{
+    connection.query('SELECT * FROM games_consoles',(error, results) =>{
+        res.send(results);
+    });
+});
+
+app.get(`/users_games_status/all`,(req,res) =>{
+    connection.query('SELECT * FROM users_games_status',(error, results) =>{
+        res.send(results);
+    });
+});
+
+app.get('/game/:name/', (req,res)=>{
+    const gameUserRequest = req.params.name;
+    connection.query('SELECT * FROM games WHERE game_name = ?',
+        [gameUserRequest],
+        (error, results)=>{
+            res.send(results);
+        });
+});
+
+//posts
+
+app.post('/new_user',(req,res)=>{
+    const user_name = req.body.user_name;
+
+    console.log(user_name);
+    res.send("Successful POST request");
 });
 
 //catches all endpoints that don´t exist yet and returns error 404
