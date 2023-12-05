@@ -69,9 +69,13 @@ app.get('/game/:name/', (req,res)=>{
 
 //posts
 
+//POST that handles creation of new users
 app.post('/new_user',(req,res)=>{
     const user_name = req.body.user_name;
-
+    connection.query('INSERT INTO `users` (user_name) VALUES (?)', [user_name],
+        (error, results)=>{
+            res.send(results);
+        });
     console.log(user_name);
     res.send("Successful POST request");
 });
