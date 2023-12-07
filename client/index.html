@@ -16,8 +16,9 @@
         <ul>
             <!-- Replace these placeholders with your actual menu items -->
             <li><a href="#">Home</a></li>
-            <li><a href="#">About</a></li>
-            <li><a href="#">Contact</a></li>
+            <li><a href="#">Cosy games</a></li>
+            <li><a href="#">login</a></li>
+            <li><a href="#">Profile</a></li>
         </ul>
     </nav>
 </header>
@@ -27,9 +28,10 @@
     <p>This is the front page content. Replace this text with your own content.</p>
 </section>
 
+<!-- Registration Form -->
 <section id="user-registration">
     <h2>User Registration</h2>
-    <form action="#" method="post">
+    <form id="register-form">
         <div>
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required>
@@ -39,14 +41,15 @@
             <input type="password" id="password" name="password" required>
         </div>
         <div>
-            <button type="submit">Register</button>
+            <button type="button" id="register-button">Register</button>
         </div>
     </form>
 </section>
 
+<!-- Login Form -->
 <section id="login-section">
     <h2>Login</h2>
-    <form action="#" method="post">
+    <form id="login-form">
         <div>
             <label for="login-username">Username:</label>
             <input type="text" id="login-username" name="login-username" required>
@@ -56,7 +59,7 @@
             <input type="password" id="login-password" name="login-password" required>
         </div>
         <div>
-            <button type="submit">Login</button>
+            <button type="button" id="login-button">Login</button>
         </div>
     </form>
 </section>
@@ -79,15 +82,22 @@
 </section>
 
 <section id="user-profile">
-    <h2>User Profile</h2>
-    <p>User Name: <span id="user-name">John Doe</span></p>
+    <div>
+        <h2>User Profile</h2>
+        <p>User Name: <span id="user-name">John Doe</span></p>
+        <div>
+            <button type="button" id="logout-button">Logout</button>
+        </div>
+        <h3>Lists</h3>
+    </div>
+    <div>
+        <ul>
+            <li>List 1</li>
+            <li>List 2</li>
+            <li>List 3</li>
+        </ul>
+    </div>
 
-    <h3>Lists</h3>
-    <ul>
-        <li>List 1</li>
-        <li>List 2</li>
-        <li>List 3</li>
-    </ul>
 
 </section>
 
