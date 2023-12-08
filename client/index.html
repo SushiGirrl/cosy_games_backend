@@ -15,22 +15,22 @@
     <nav>
         <ul>
             <!-- Replace these placeholders with your actual menu items -->
-            <li><a href="#">Home</a></li>
-            <li><a href="#">Cosy games</a></li>
-            <li><a href="#">login</a></li>
-            <li><a href="#">Profile</a></li>
+            <li id="home-page-header"><a href="#home-page">Home</a></li>
+            <li id="cosy-games-search-header"><a href="#search-section">Cosy games</a></li>
+            <li id="login-header"><a href="#login-section">login</a></li>
+            <li id="profile-header"><a href="#user-profile">Profile</a></li>
         </ul>
     </nav>
 </header>
 
-<section id="front-page">
+<section id="home-page">
     <h1>Welcome to Your Website</h1>
     <p>This is the front page content. Replace this text with your own content.</p>
 </section>
 
 <!-- Registration Form -->
 <section id="user-registration">
-    <h2>User Registration</h2>
+    <h2>Register new user</h2>
     <form id="register-form">
         <div>
             <label for="username">Username:</label>
@@ -49,6 +49,7 @@
 <!-- Login Form -->
 <section id="login-section">
     <h2>Login</h2>
+    <h3></h3>
     <form id="login-form">
         <div>
             <label for="login-username">Username:</label>
@@ -60,6 +61,9 @@
         </div>
         <div>
             <button type="button" id="login-button">Login</button>
+        </div>
+        <div>
+            <button type="button" id="register-redirection-button">Register new user</button>
         </div>
     </form>
 </section>

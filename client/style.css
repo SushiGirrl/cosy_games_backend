@@ -12,10 +12,11 @@ header {
 }
 
 section {
+    display: flex;
     padding: 20px;
 }
 
-#front-page {
+#home-page {
     border: 1px solid #ddd;
     padding: 20px;
     margin-bottom: 20px;
