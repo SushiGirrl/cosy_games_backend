@@ -7,23 +7,29 @@ function register() {
     const username = document.querySelector('#username').value;
     const password = document.querySelector('#password').value;
 
+    console.log(username)
+    console.log(password)
+
+    const userAsObject = {
+        user_name: username,
+        password: password
+    }
+
+    console.log(userAsObject)
+
+    const userAsString =  JSON.stringify(userAsObject)
+
+    console.log(userAsString)
+
     // Make a POST request to the server to handle user registration
-    fetch('/register', {
+    fetch('http://localhost:3000/register', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-            username: username,
-            password: password,
-        }),
+        body: userAsString
     })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-            // Handle the response from the server (e.g., display a message to the user)
-        })
-        .catch(error => console.error('Error:', error));
+    .catch(error => console.error('Error:', error));
 }
 
 function login() {

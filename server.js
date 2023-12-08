@@ -81,10 +81,12 @@ app.get('/game/:name/', (req,res)=>{
 
 //POST that handles registration of new users
 app.post("/register", (req, res) => {
-    const { username, password } = req.body;
+    const { user_name, password } = req.body;
+    console.log(user_name);
+    console.log(password);
     connection.query(
-        "INSERT INTO users (username, password) VALUES (?, ?)",
-        [username, password],
+        "INSERT INTO users (user_name, password) VALUES (?, ?)",
+        [user_name, password],
         (error, results) => {
             if (error) {
                 console.error(error);
