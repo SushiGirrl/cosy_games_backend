@@ -99,10 +99,12 @@ app.post("/register", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-    const { username, password } = req.body;
+    const { user_name, password } = req.body;
+    console.log(user_name);
+    console.log(password);
     connection.query(
-        "SELECT * FROM users WHERE username = ? AND password = ?",
-        [username, password],
+        "SELECT * FROM users WHERE user_name = ? AND password = ?",
+        [user_name, password],
         (error, results) => {
             if (error) {
                 console.error(error);
@@ -111,8 +113,11 @@ app.post("/login", (req, res) => {
                 if (results.length > 0) {
                     // Store user information in the session
                     req.session.user = results[0];
+                    console.log(results[0]);
                     res.send("Login successful");
                 } else {
+                    //tests if there are any results
+                    console.log(results);
                     res.status(401).send("Invalid credentials");
                 }
             }

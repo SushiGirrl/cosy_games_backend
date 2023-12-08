@@ -3,25 +3,35 @@ const registerButton = document.querySelector('#register-button');
 const loginButton = document.querySelector('#login-button');
 const logoutButton = document.querySelector('#logout-button');
 
+/*
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            // Handle the response from the server (e.g., redirect to a profile page)
+        })
+ */
+
+
 function register() {
     const username = document.querySelector('#username').value;
     const password = document.querySelector('#password').value;
 
+    //tests if we can log the values
     console.log(username)
     console.log(password)
-
+    //creates user as object
     const userAsObject = {
         user_name: username,
         password: password
     }
-
+    //tests if the user object is created
     console.log(userAsObject)
-
+    //parses user object as string
     const userAsString =  JSON.stringify(userAsObject)
-
+    //tests if the user object as a string works
     console.log(userAsString)
 
-    // Make a POST request to the server to handle user registration
+    //fetches the POST method from the server
     fetch('http://localhost:3000/register', {
         method: 'POST',
         headers: {
@@ -36,22 +46,30 @@ function login() {
     const username = document.querySelector('#login-username').value;
     const password = document.querySelector('#login-password').value;
 
-    // Make a POST request to the server to handle user login
-    fetch('/login', {
+    //tests if we can log the values
+    console.log(username)
+    console.log(password)
+
+    //creates user as object
+    const userAsObject = {
+        user_name: username,
+        password: password
+    }
+    //tests if the user object is created
+    console.log(userAsObject)
+    //parses user object as string
+    const userAsString =  JSON.stringify(userAsObject)
+    //tests if the user object as a string works
+    console.log(userAsString)
+
+    //fetches Post from server
+    fetch('http://localhost:3000/login', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-            username: username,
-            password: password,
-        }),
+        body: userAsString
     })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-            // Handle the response from the server (e.g., redirect to a profile page)
-        })
         .catch(error => console.error('Error:', error));
 }
 
