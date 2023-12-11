@@ -6,67 +6,61 @@ const express = require("express");
 const db = require("mysql2");
 //npm install cors --save
 const cors = require("cors");
-//npm install express-session
-const session = require("express-session");
+//npm install bcrypt
+const bcrypt = require("bcrypt");
+//npm install jsonwebtoken
+const jwt = require("jsonwebtoken");
 
 const app = express();
-//had change port from "4000" (IDK why)
 const port = 3000;
 
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:63342',
+    credentials: true
+}));
+
 app.use(express.json());
 
-app.use(
-    session({
-        secret: "my-secret-key",
-        resave: false,
-        saveUninitialized: true,
-    })
-);
-
-//Host, user, password database
+//establishes connection to my database
 const connection = db.createConnection({
-    //had to change "localhost" to mysql hostname under "mannage connections"
+    //MySQL hostname (can be found under "manage connections")
     host: "127.0.0.1",
     user: "root",
     password: "Khfx5cvf1cb#",
     database: "cosy_games"
 });
-app.get(`/hello`,(req,res) =>{
-    res.send('Hello');
-});
 
-//endpoint that displays all data of all games
+//endpoint that sends all data of all games
 app.get(`/games/all`,(req,res) =>{
     connection.query('SELECT * FROM games',(error, results) =>{
         res.send(results);
     });
 });
-
+//endpoint that sends all data of all consoles
 app.get(`/consoles/all`,(req,res) =>{
     connection.query('SELECT * FROM consoles',(error, results) =>{
         res.send(results);
     });
 });
-
+//endpoint that sends all data of all users
 app.get(`/users/all`,(req,res) =>{
     connection.query('SELECT * FROM users',(error, results) =>{
         res.send(results);
     });
 });
-
+//endpoint that sends all data of all games_consoles
 app.get(`/games_consoles/all`,(req,res) =>{
     connection.query('SELECT * FROM games_consoles',(error, results) =>{
         res.send(results);
     });
 });
-
+//endpoint that sends all data of all users_games_status
 app.get(`/users_games_status/all`,(req,res) =>{
     connection.query('SELECT * FROM users_games_status',(error, results) =>{
         res.send(results);
     });
 });
-
+//-------------------------------HERE--------------------------!!!!!!!!!!!!!!
 app.get('/game/:name/', (req,res)=>{
     const gameUserRequest = req.params.name;
     connection.query(
@@ -77,20 +71,44 @@ app.get('/game/:name/', (req,res)=>{
         });
 });
 
-//Authentication implementation
+//--------------Authentication implementation----------------//
+
+//authentication middleware to check the token
+const checkToken = (req, res, next) => {
+    const token = req.headers.authorization;
+
+    if (!token) {
+        return res.status(401).json({ message: "Unauthorized: No token provided" });
+    }
+
+    console.log("From checkToken: ",token);
+    jwt.verify(token, "your-secret-key", (err, decoded) => {
+        if (err) {
+            return res.status(403).json({ message: "Forbidden: Invalid token" });
+        }
+        console.log(decoded);
+
+        req.user = decoded; //attach the decoded user information to the request
+        next();
+    });
+};
 
 //POST that handles registration of new users
 app.post("/register", (req, res) => {
     const { user_name, password } = req.body;
     console.log(user_name);
     console.log(password);
+
+    //hashes the password before storing it
+    const hashedPassword = bcrypt.hashSync(password, 10);
+
     connection.query(
         "INSERT INTO users (user_name, password) VALUES (?, ?)",
-        [user_name, password],
+        [user_name, hashedPassword],
         (error, results) => {
             if (error) {
                 console.error(error);
-                res.status(500).send("Registration failed, that username might already be in use.");
+                res.status(500).send("Registration failed, that username might already be in use");
             } else {
                 res.json({ message: "Registration successful" });
             }
@@ -98,25 +116,33 @@ app.post("/register", (req, res) => {
     );
 });
 
+//POST that handles login
 app.post("/login", (req, res) => {
     const { user_name, password } = req.body;
     console.log(user_name);
     console.log(password);
+
     connection.query(
-        "SELECT * FROM users WHERE user_name = ? AND password = ?",
-        [user_name, password],
+        "SELECT * FROM users WHERE user_name = ?",
+        [user_name],
         (error, results) => {
+            //if there is not a matching username and password in the database
+            //then it is an error 500 and login fails
             if (error) {
                 console.error(error);
                 res.status(500).send("Login failed");
             } else {
-                if (results.length > 0) {
-                    // Store user information in the session
-                    req.session.user = results[0];
-                    console.log(results[0]);
-                    res.send("Login successful");
+                if (results.length > 0 && bcrypt.compareSync(password, results[0].password)) {
+                    //user is authenticated, generate a JWT token
+                    const token = jwt.sign({ userId: results[0].id, username: results[0].user_name },
+                        "your-secret-key", { expiresIn: "1h" });
+                    console.log("From /login: ",token);
+
+                    res.json({ token });
+                    console.log(JSON.parse(token));
                 } else {
                     //tests if there are any results
+                    //there won´t be any results if input is empty
                     console.log(results);
                     res.status(401).send("Invalid credentials");
                 }
@@ -125,20 +151,22 @@ app.post("/login", (req, res) => {
     );
 });
 
-app.get("/profile", (req, res) => {
-    // Check if the user is authenticated
-    if (req.session.user) {
-        res.send(`Welcome, ${req.session.user.username}!`);
-    } else {
-        res.status(401).send("Unauthorized");
-    }
-});
-
 app.get("/logout", (req, res) => {
-    // Destroy the session on logout
-    req.session.destroy();
+    // You can clear any client-side storage or handle additional cleanup here
     res.send("Logout successful");
 });
+
+//protected endpoint
+app.get("/api/checkLoggedIn", checkToken, (req, res) => {
+    res.json({ loggedIn: true, user: req.user });
+});
+
+//protected profile endpoint
+app.get("/profile", checkToken, (req, res) => {
+    //the user is authenticated, and user information is available in req.user
+    res.send(`Welcome, ${req.user.username}!`);
+});
+
 
 //catches all endpoints that don´t exist yet and returns error 404
 app.get('*',(req,res) =>{

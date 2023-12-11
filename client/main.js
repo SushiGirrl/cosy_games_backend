@@ -27,7 +27,8 @@ const userRegistrationH2 = document.querySelector('#user-registration h2');
             // Handle the response from the server (e.g., redirect to a profile page)
         })
  */
-function loginBrowserVisibility() {
+//page visibility functions
+function beforeLoginBrowserVisibility() {
     homePage.style.display = 'none';
     searchSection.style.display = 'none';
     loginSection.style.display = 'block';
@@ -37,6 +38,58 @@ function loginBrowserVisibility() {
     profileHeader.style.display = 'none';
     loginHeader.style.display = 'block';
 }
+function afterLoginBrowserVisibility() {
+    homePage.style.display = 'none';
+    searchSection.style.display = 'none';
+    loginSection.style.display = 'none';
+    registrationSection.style.display = 'none';
+    profileSection.style.display = 'block';
+
+    profileHeader.style.display = 'block';
+    loginHeader.style.display = 'none';
+}
+function afterLogoutBrowserVisibility() {
+    homePage.style.display = 'block';
+    searchSection.style.display = 'none';
+    loginSection.style.display = 'none';
+    registrationSection.style.display = 'none';
+    profileSection.style.display = 'none';
+
+    profileHeader.style.display = 'none';
+    loginHeader.style.display = 'block';
+}
+
+//function that checks whether a user is logged in or not
+const checkLoggedInStatus = (url, method = 'GET') => {
+    const token = localStorage.getItem('token');
+    console.log('Token:', token);
+
+    return fetch(url, {
+        method,
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token ? `Bearer ${token}` : '',
+        },
+        // Remove the body property for GET requests
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("User is not logged in");
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("User is logged in:", data.user);
+        })
+        .catch(error => {
+            console.error("Error checking login status:", error);
+        });
+};
+
+
+/*Example usage
+checkLoggedInStatus('http://localhost:3000/api/checkLoggedIn');
+ */
 
 function register() {
     const username = document.querySelector('#username').value;
@@ -70,10 +123,10 @@ function register() {
             //redirects new user to login
             loginH2.textContent = "Successfully registered new user!";
             loginH3.textContent = "Now you just need to login";
-            loginBrowserVisibility();
+            beforeLoginBrowserVisibility();
 
         }else{
-            userRegistrationH2.textContent = "Registration failed, that username might already be in use.";
+            userRegistrationH2.textContent = "Registration failed, that username might already be in use";
         }
     })
     .catch(error => console.error('Error:', error));
@@ -107,41 +160,44 @@ function login() {
         },
         body: userAsString
     })
-        .catch(error => console.error('Error:', error));
-
-    homePage.style.display = 'none';
-    searchSection.style.display = 'none';
-    loginSection.style.display = 'none';
-    registrationSection.style.display = 'none';
-    profileSection.style.display = 'block';
-
-    profileHeader.style.display = 'block';
-    loginHeader.style.display = 'none';
+    .then(data => {
+        if(data.status !== 500 && data.status !== 401){
+            return data.json();
+        }else{
+            loginH2.textContent = "Login failed, try again";
+            loginH3.textContent = "The credentials provided did not match a user profile";
+            throw new Error("Login failed");
+        }
+    })
+    .then(data => {
+        localStorage.setItem('token', data.token);
+        // Check logged-in status after successful login
+        return checkLoggedInStatus('http://localhost:3000/api/checkLoggedIn');
+    })
+    .then(data => {
+        // Handle the response from the server (e.g., redirect to a profile page)
+        console.log(data);
+        afterLoginBrowserVisibility();
+    })
+    .catch(error => console.error('Error:', error));
 }
 
 function logout() {
-    // Make a GET request to the server to handle user logout
+    // Remove the token from localStorage
+    localStorage.removeItem('token');
+
+    //make a GET request to the server to handle user logout
     fetch('http://localhost:3000/logout')
-        .catch(error => console.error('Error:', error));
+    .catch(error => console.error('Error:', error));
 
-    homePage.style.display = 'block';
-    searchSection.style.display = 'none';
-    loginSection.style.display = 'none';
-    registrationSection.style.display = 'none';
-    profileSection.style.display = 'none';
-
-    profileHeader.style.display = 'none';
-    loginHeader.style.display = 'block';
+    afterLogoutBrowserVisibility();
 }
 
+//EventListeners
 window.addEventListener('load', ()=>{
-    searchSection.style.display = 'none';
-    loginSection.style.display = 'none';
-    registrationSection.style.display = 'none';
-    profileSection.style.display = 'none';
-
-    profileHeader.style.display = 'none';
+    afterLogoutBrowserVisibility();
 })
+//header elements
 homePageHeader.addEventListener('click', ()=>{
     //implement authorization check
     //if user is not logged in:
@@ -191,20 +247,15 @@ cosyGamesHeader.addEventListener('click', ()=>{
      */
 })
 loginHeader.addEventListener('click', ()=>{
-    loginBrowserVisibility();
+    beforeLoginBrowserVisibility();
     loginH2.textContent = "Login";
     loginH3.textContent = "";
 })
 profileHeader.addEventListener('click', ()=>{
-    homePage.style.display = 'none';
-    searchSection.style.display = 'none';
-    loginSection.style.display = 'none';
-    registrationSection.style.display = 'none';
-    profileSection.style.display = 'block';
-
-    profileHeader.style.display = 'block';
-    loginHeader.style.display = 'none';
+    afterLoginBrowserVisibility();
 })
+
+//buttons
 registerRedirectionButton.addEventListener('click', ()=>{
     homePage.style.display = 'none';
     searchSection.style.display = 'none';
@@ -221,7 +272,6 @@ registerButton.addEventListener('click', ()=>{
 
 loginButton.addEventListener('click', ()=>{
     login();
-
 })
 
 logoutButton.addEventListener('click', ()=>{
