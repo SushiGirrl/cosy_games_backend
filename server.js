@@ -60,7 +60,7 @@ app.get(`/users_games_status/all`,(req,res) =>{
         res.send(results);
     });
 });
-//-------------------------------HERE--------------------------!!!!!!!!!!!!!!
+
 app.get('/game/:name/', (req,res)=>{
     const gameUserRequest = req.params.name;
     connection.query(
@@ -167,6 +167,22 @@ app.get("/profile", checkToken, (req, res) => {
     res.send(`Welcome, ${req.user.username}!`);
 });
 
+app.get('/games/search', (req, res) => {
+    const searchQuery = req.query.query;
+
+    connection.query(
+        'SELECT * FROM games WHERE game_name LIKE ?',
+        [`%${searchQuery}%`],
+        (error, results) => {
+            if (error) {
+                console.error(error);
+                res.status(500).send('Error fetching games');
+            } else {
+                res.send(results);
+            }
+        }
+    );
+});
 
 //catches all endpoints that don´t exist yet and returns error 404
 app.get('*',(req,res) =>{

@@ -69,18 +69,30 @@
 
 <section id="search-section">
     <div>
-        <label for="search-input">Search:</label>
+        <label for="search-input">Search by name:</label>
         <input type="text" id="search-input" name="search-input">
     </div>
     <div>
-        <label for="filter-options">Filter Options:</label>
+        <button type="button" id="search-button">Search</button>
+    </div>
+    <h2>Filter</h2>
+    <div>
+        <label for="filter-options">Sort by:</label>
         <select id="filter-options" name="filter-options">
-            <!-- Add your filter options here -->
-            <option value="option1">Option 1</option>
-            <option value="option2">Option 2</option>
-            <option value="option3">Option 3</option>
+            <option value="Rating">Rating</option>
+            <option value="Price">Price</option>
+            <option value="Length">Length</option>
+            <option value="A-Z">A-Z</option>
         </select>
     </div>
+    <div>
+        <a>Games</a>
+        <ul id="game-list"></ul>
+    </div>
+</section>
+
+<section id="game-details-section">
+    <div id="game-details"></div>
 </section>
 
 <section id="user-profile">

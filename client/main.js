@@ -4,12 +4,14 @@ const registerButton = document.querySelector('#register-button');
 const loginButton = document.querySelector('#login-button');
 const logoutButton = document.querySelector('#logout-button');
 const registerRedirectionButton = document.querySelector('#register-redirection-button');
+const searchButton = document.querySelector('#search-button');
 //sections
 const homePage = document.querySelector('#home-page');
 const searchSection = document.querySelector('#search-section');
 const loginSection = document.querySelector('#login-section');
 const registrationSection = document.querySelector('#user-registration');
 const profileSection = document.querySelector('#user-profile');
+const gameDetailsSection = document.querySelector('#game-details-section');
 //header options
 const homePageHeader = document.querySelector('#home-page-header');
 const cosyGamesHeader = document.querySelector('#cosy-games-search-header');
@@ -19,6 +21,9 @@ const profileHeader = document.querySelector('#profile-header');
 const loginH2 = document.querySelector('#login-section h2');
 const loginH3 = document.querySelector('#login-section h3');
 const userRegistrationH2 = document.querySelector('#user-registration h2');
+//list
+const gameList = document.querySelector('#game-list');
+const gameDetailsElement = document.querySelector('#game-details');
 
 /*
         .then(response => response.json())
@@ -187,17 +192,118 @@ function logout() {
     localStorage.removeItem('token');
 
     //make a GET request to the server to handle user logout
-    fetch('http://localhost:3000/logout')
-    .catch(error => console.error('Error:', error));
+    fetch('http://localhost:3000/logout', {
+        method: 'GET',
+        credentials: 'include',
+    })
+        .catch(error => console.error('Error:', error));
 
     afterLogoutBrowserVisibility();
+}
+
+function displayAllGames() {
+    fetch('http://localhost:3000/games/all', {
+        method: 'GET',
+        credentials: 'include', // Add this line
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            //clears existing content
+            gameList.innerHTML = '';
+            // Iterate over the games and append them to the list
+            data.forEach(game => {
+                const listItem = document.createElement('li');
+                const link = document.createElement('a');
+
+                link.textContent = game.game_name;
+                //placeholder
+                link.href = '#';
+
+                listItem.appendChild(link);
+                gameList.appendChild(listItem);
+            })
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+//function to display details for a specific game
+function displayGameDetails(gameName) {
+    fetch(`http://localhost:3000/game/${encodeURIComponent(gameName)}`, {
+        method: 'GET',
+        credentials: 'include',
+    })
+        .then(response => response.json())
+        .then(gameDetails => {
+            console.log(gameDetails);
+            // Adjust this part based on how you want to display the game details
+            gameDetailsElement.innerHTML = JSON.stringify(gameDetails);
+            // Add more details as needed
+        })
+        .catch(error => console.error('Error fetching game details:', error));
+}
+
+//function to handle clicks on game links
+function handleGameLinkClick(event) {
+    event.preventDefault(); //prevents the default behavior of the anchor element
+
+    if (event.target.nodeName === 'A') {
+        const gameName = event.target.textContent; //gets the game name from the clicked link
+        displayGameDetails(gameName); //fetches and displays details for the selected game
+
+        //visibility
+        homePage.style.display = 'none';
+        searchSection.style.display = 'none';
+        loginSection.style.display = 'none';
+        registrationSection.style.display = 'none';
+        profileSection.style.display = 'none';
+
+        profileHeader.style.display = 'block';
+        loginHeader.style.display = 'none';
+    }
+}
+
+function displayFilteredGames(filteredGames) {
+    // Clear existing content
+    gameList.innerHTML = '';
+
+    // Iterate over the filtered games and append them to the list
+    filteredGames.forEach(game => {
+        const listItem = document.createElement('li');
+        const link = document.createElement('a');
+
+        link.textContent = game.game_name;
+        link.href = '#';
+
+        listItem.appendChild(link);
+        gameList.appendChild(listItem);
+    });
+}
+
+function searchGames() {
+    const searchInput = document.querySelector('#search-input').value;
+    if (searchInput.trim() !== '') {
+        // Fetch games based on the search input
+        fetch(`http://localhost:3000/games/search?query=${encodeURIComponent(searchInput)}`, {
+            method: 'GET',
+            credentials: 'include',
+        })
+            .then(response => response.json())
+            .then(data => {
+                // Display the filtered games
+                displayFilteredGames(data);
+            })
+            .catch(error => console.error('Error:', error));
+    }else{
+        displayAllGames();
+    }
 }
 
 //EventListeners
 window.addEventListener('load', ()=>{
     afterLogoutBrowserVisibility();
 })
-//header elements
+//href elements
 homePageHeader.addEventListener('click', ()=>{
     //implement authorization check
     //if user is not logged in:
@@ -234,6 +340,9 @@ cosyGamesHeader.addEventListener('click', ()=>{
     profileHeader.style.display = 'none';
     loginHeader.style.display = 'block';
 
+    displayAllGames();
+    gameDetailsElement.innerHTML = '';
+
     //else if user is logged in;
     /*
     homePage.style.display = 'none';
@@ -254,6 +363,9 @@ loginHeader.addEventListener('click', ()=>{
 profileHeader.addEventListener('click', ()=>{
     afterLoginBrowserVisibility();
 })
+
+//add event listeners to each anchor element
+gameList.addEventListener('click', handleGameLinkClick);
 
 //buttons
 registerRedirectionButton.addEventListener('click', ()=>{
@@ -277,3 +389,5 @@ loginButton.addEventListener('click', ()=>{
 logoutButton.addEventListener('click', ()=>{
     logout();
 })
+
+searchButton.addEventListener('click', searchGames);
