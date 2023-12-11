@@ -184,6 +184,28 @@ app.get('/games/search', (req, res) => {
     );
 });
 
+//gets game details on games associated with chosen console
+app.get('/games/byConsole/:console', (req, res) => {
+    const selectedConsole = req.params.console;
+
+    connection.query(
+        'SELECT games.* FROM games_consoles ' +
+        'INNER JOIN games ON games_consoles.game_id = games.game_id ' +
+        'INNER JOIN consoles ON games_consoles.console_id = consoles.console_id ' +
+        'WHERE consoles.console = ?',
+        [selectedConsole],
+        (error, results) => {
+            if (error) {
+                console.error(error);
+                res.status(500).send('Error fetching games by console');
+            } else {
+                res.send(results);
+            }
+        }
+    );
+});
+
+
 //catches all endpoints that don´t exist yet and returns error 404
 app.get('*',(req,res) =>{
     res.sendStatus(404);

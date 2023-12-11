@@ -5,6 +5,7 @@ const loginButton = document.querySelector('#login-button');
 const logoutButton = document.querySelector('#logout-button');
 const registerRedirectionButton = document.querySelector('#register-redirection-button');
 const searchButton = document.querySelector('#search-button');
+const filterSearchButton = document.querySelector('#filter-search-button');
 //sections
 const homePage = document.querySelector('#home-page');
 const searchSection = document.querySelector('#search-section');
@@ -23,6 +24,7 @@ const loginH3 = document.querySelector('#login-section h3');
 const userRegistrationH2 = document.querySelector('#user-registration h2');
 //list
 const gameList = document.querySelector('#game-list');
+//div
 const gameDetailsElement = document.querySelector('#game-details');
 
 /*
@@ -290,13 +292,39 @@ function searchGames() {
         })
             .then(response => response.json())
             .then(data => {
-                // Display the filtered games
+                //display the filtered games
                 displayFilteredGames(data);
             })
             .catch(error => console.error('Error:', error));
     }else{
         displayAllGames();
     }
+}
+
+//function to fetch games based on the selected console/platform
+function fetchGamesByConsole(selectedConsole) {
+    return fetch(`http://localhost:3000/games/byConsole/${encodeURIComponent(selectedConsole)}`, {
+        method: 'GET',
+        credentials: 'include',
+    })
+        .then(response => response.json())
+        .catch(error => {
+            console.error('Error:', error);
+            throw error; //re-throw the error to be caught in the calling code
+        });
+}
+//unction to handle the click event
+function handleFilterButtonClick() {
+    const platformOptions = document.querySelector('#platform');
+    const selectedConsole = platformOptions.value;
+
+    // Fetch games based on the selected console
+    fetchGamesByConsole(selectedConsole)
+        .then(data => {
+            // Display the filtered games
+            displayFilteredGames(data);
+        })
+        .catch(error => console.error('Error fetching games:', error));
 }
 
 //EventListeners
@@ -391,3 +419,5 @@ logoutButton.addEventListener('click', ()=>{
 })
 
 searchButton.addEventListener('click', searchGames);
+
+filterSearchButton.addEventListener('click', handleFilterButtonClick);
