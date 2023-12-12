@@ -32,7 +32,7 @@ const connection = db.createConnection({
 
 //endpoint that sends all data of all games
 app.get(`/games/all`,(req,res) =>{
-    connection.query('SELECT * FROM games',(error, results) =>{
+    connection.query('SELECT * FROM games ORDER BY game_name ASC',(error, results) =>{
         res.send(results);
     });
 });
@@ -152,7 +152,7 @@ app.post("/login", (req, res) => {
 });
 
 app.get("/logout", (req, res) => {
-    // You can clear any client-side storage or handle additional cleanup here
+    //you can clear any client-side storage or handle additional cleanup here
     res.send("Logout successful");
 });
 
@@ -192,7 +192,8 @@ app.get('/games/byConsole/:console', (req, res) => {
         'SELECT games.* FROM games_consoles ' +
         'INNER JOIN games ON games_consoles.game_id = games.game_id ' +
         'INNER JOIN consoles ON games_consoles.console_id = consoles.console_id ' +
-        'WHERE consoles.console = ?',
+        'WHERE consoles.console = ?' +
+        'ORDER BY games.game_name ASC',
         [selectedConsole],
         (error, results) => {
             if (error) {
