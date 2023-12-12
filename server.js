@@ -30,37 +30,45 @@ const connection = db.createConnection({
     database: "cosy_games"
 });
 
-//endpoint that sends all data of all games
+//endpoint that sends all data of all games in alphabetical order
 app.get(`/games/all`,(req,res) =>{
     connection.query('SELECT * FROM games ORDER BY game_name ASC',(error, results) =>{
         res.send(results);
     });
 });
-//endpoint that sends all data of all consoles
-app.get(`/consoles/all`,(req,res) =>{
-    connection.query('SELECT * FROM consoles',(error, results) =>{
-        res.send(results);
+app.get('/games/byRating', (req, res) => {
+    connection.query('SELECT * FROM games ORDER BY rating_metascore DESC', (error, results) => {
+        if (error) {
+            console.error(error);
+            res.status(500).send('Error fetching games by rating');
+        } else {
+            res.send(results);
+        }
     });
 });
-//endpoint that sends all data of all users
-app.get(`/users/all`,(req,res) =>{
-    connection.query('SELECT * FROM users',(error, results) =>{
-        res.send(results);
+app.get('/games/byPrice', (req, res) => {
+    connection.query('SELECT * FROM games ORDER BY price_dk ASC', (error, results) => {
+        if (error) {
+            console.error(error);
+            res.status(500).send('Error fetching games by price');
+        } else {
+            res.send(results);
+        }
     });
 });
-//endpoint that sends all data of all games_consoles
-app.get(`/games_consoles/all`,(req,res) =>{
-    connection.query('SELECT * FROM games_consoles',(error, results) =>{
-        res.send(results);
-    });
-});
-//endpoint that sends all data of all users_games_status
-app.get(`/users_games_status/all`,(req,res) =>{
-    connection.query('SELECT * FROM users_games_status',(error, results) =>{
-        res.send(results);
+app.get('/games/byLength', (req, res) => {
+    connection.query('SELECT * FROM games ORDER BY length_hours DESC', (error, results) => {
+        if (error) {
+            console.error(error);
+            res.status(500).send('Error fetching games by length');
+        } else {
+            res.send(results);
+        }
     });
 });
 
+
+//sends all data about a specific game with name taken from parameter
 app.get('/game/:name/', (req,res)=>{
     const gameUserRequest = req.params.name;
     connection.query(
@@ -161,13 +169,9 @@ app.get("/api/checkLoggedIn", checkToken, (req, res) => {
     res.json({ loggedIn: true, user: req.user });
 });
 
-//protected profile endpoint
-app.get("/profile", checkToken, (req, res) => {
-    //the user is authenticated, and user information is available in req.user
-    res.send(`Welcome, ${req.user.username}!`);
-});
-
+//
 app.get('/games/search', (req, res) => {
+    //extracts the value of the query parameter from the query string of the URL
     const searchQuery = req.query.query;
 
     connection.query(
@@ -184,7 +188,7 @@ app.get('/games/search', (req, res) => {
     );
 });
 
-//gets game details on games associated with chosen console
+//gets game details on games associated with chosen console ordered by A-Z
 app.get('/games/byConsole/:console', (req, res) => {
     const selectedConsole = req.params.console;
 
@@ -206,6 +210,151 @@ app.get('/games/byConsole/:console', (req, res) => {
     );
 });
 
+//gets game details on games associated with chosen console ordered by rating
+app.get('/games/byConsole/byRating/:console', (req, res) => {
+    const selectedConsole = req.params.console;
+
+    connection.query(
+        'SELECT games.* FROM games_consoles ' +
+        'INNER JOIN games ON games_consoles.game_id = games.game_id ' +
+        'INNER JOIN consoles ON games_consoles.console_id = consoles.console_id ' +
+        'WHERE consoles.console = ?' +
+        'ORDER BY rating_metascore DESC',
+        [selectedConsole],
+        (error, results) => {
+            if (error) {
+                console.error(error);
+                res.status(500).send('Error fetching games by console and rating');
+            } else {
+                res.send(results);
+            }
+        }
+    );
+});
+
+//gets game details on games associated with chosen console ordered by price
+app.get('/games/byConsole/byPrice/:console', (req, res) => {
+    const selectedConsole = req.params.console;
+
+    connection.query(
+        'SELECT games.* FROM games_consoles ' +
+        'INNER JOIN games ON games_consoles.game_id = games.game_id ' +
+        'INNER JOIN consoles ON games_consoles.console_id = consoles.console_id ' +
+        'WHERE consoles.console = ?' +
+        'ORDER BY price_dk ASC',
+        [selectedConsole],
+        (error, results) => {
+            if (error) {
+                console.error(error);
+                res.status(500).send('Error fetching games by console and price');
+            } else {
+                res.send(results);
+            }
+        }
+    );
+});
+
+//gets game details on games associated with chosen console ordered by length
+app.get('/games/byConsole/byLength/:console', (req, res) => {
+    const selectedConsole = req.params.console;
+
+    connection.query(
+        'SELECT games.* FROM games_consoles ' +
+        'INNER JOIN games ON games_consoles.game_id = games.game_id ' +
+        'INNER JOIN consoles ON games_consoles.console_id = consoles.console_id ' +
+        'WHERE consoles.console = ?' +
+        'ORDER BY length_hours DESC',
+        [selectedConsole],
+        (error, results) => {
+            if (error) {
+                console.error(error);
+                res.status(500).send('Error fetching games by console and length');
+            } else {
+                res.send(results);
+            }
+        }
+    );
+});
+
+//gets game details on games associated with chosen multiplayer ordered by A-Z
+app.get('/games/byMultiplayer/byAlphabetical/:multiplayer', (req, res) => {
+    const selectedMultiplayer = req.params.multiplayer;
+
+    connection.query(
+        'SELECT * FROM games ' +
+        'WHERE multiplayer = ?' +
+        'ORDER BY game_name ASC',
+        [selectedMultiplayer],
+        (error, results) => {
+            if (error) {
+                console.error(error);
+                res.status(500).send('Error fetching games by multiplayer sorted by A-Z');
+            } else {
+                res.send(results);
+            }
+        }
+    );
+});
+
+//gets game details on games associated with chosen multiplayer ordered by Rating
+app.get('/games/byMultiplayer/byRating/:multiplayer', (req, res) => {
+    const selectedMultiplayer = req.params.multiplayer;
+
+    connection.query(
+        'SELECT * FROM games ' +
+        'WHERE multiplayer = ?' +
+        'ORDER BY rating_metascore DESC',
+        [selectedMultiplayer],
+        (error, results) => {
+            if (error) {
+                console.error(error);
+                res.status(500).send('Error fetching games by multiplayer sorted by Rating');
+            } else {
+                res.send(results);
+            }
+        }
+    );
+});
+
+//gets game details on games associated with chosen multiplayer ordered by price
+app.get('/games/byMultiplayer/byPrice/:multiplayer', (req, res) => {
+    const selectedMultiplayer = req.params.multiplayer;
+
+    connection.query(
+        'SELECT * FROM games ' +
+        'WHERE multiplayer = ?' +
+        'ORDER BY price_dk ASC',
+        [selectedMultiplayer],
+        (error, results) => {
+            if (error) {
+                console.error(error);
+                res.status(500).send('Error fetching games by multiplayer sorted by price');
+            } else {
+                res.send(results);
+            }
+        }
+    );
+});
+
+//gets game details on games associated with chosen multiplayer ordered by length
+app.get('/games/byMultiplayer/byLength/:multiplayer', (req, res) => {
+    const selectedMultiplayer = req.params.multiplayer;
+
+    connection.query(
+        'SELECT * FROM games ' +
+        'WHERE multiplayer = ?' +
+        'ORDER BY length_hours DESC',
+        [selectedMultiplayer],
+        (error, results) => {
+            if (error) {
+                console.error(error);
+                res.status(500).send('Error fetching games by multiplayer sorted by length');
+            } else {
+                res.send(results);
+            }
+        }
+    );
+});
 
 //catches all endpoints that don´t exist yet and returns error 404
 app.get('*',(req,res) =>{

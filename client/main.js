@@ -118,26 +118,33 @@ function register() {
     //tests if the user object as a string works
     console.log(userAsString)
 
-    //fetches the POST method from the server
-    fetch('http://localhost:3000/register', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: userAsString
-    })
-    .then(data => {
-        if(data.status !== 500){
-            //redirects new user to login
-            loginH2.textContent = "Successfully registered new user!";
-            loginH3.textContent = "Now you just need to login";
-            beforeLoginBrowserVisibility();
+    //checks if the username and password are empty after trimming any extra whitespaces
+    if(username.trim() === "" || password.trim() === "") {
 
-        }else{
-            userRegistrationH2.textContent = "Registration failed, that username might already be in use";
-        }
-    })
-    .catch(error => console.error('Error:', error));
+        userRegistrationH2.textContent = "Failed to register, username and password can not be blank";
+    }
+    else {
+        //fetches the POST method from the server
+        fetch('http://localhost:3000/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: userAsString
+        })
+            .then(data => {
+                if(data.status !== 500){
+                    //redirects new user to login
+                    loginH2.textContent = "Successfully registered new user!";
+                    loginH3.textContent = "Now you just need to login";
+                    beforeLoginBrowserVisibility();
+
+                }else{
+                    userRegistrationH2.textContent = "Registration failed, that username might already be in use";
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
 }
 
 //logs user in if username and password matches in the database
@@ -161,38 +168,45 @@ function login() {
     //tests if the user object as a string works
     console.log(userAsString)
 
-    //fetches Post from server
-    fetch('http://localhost:3000/login', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: userAsString
-    })
-    .then(data => {
-        if(data.status !== 500 && data.status !== 401){
-            return data.json();
-        }else{
-            loginH2.textContent = "Login failed, try again";
-            loginH3.textContent = "The credentials provided did not match a user profile";
-            throw new Error("Login failed");
-        }
-    })
-        /*
-    .then(data => {
-        localStorage.setItem('token', data.token);
+    //checks if the username and password are empty after trimming any extra whitespaces
+    if(username.trim() === "" || password.trim() === "") {
 
-        // Check logged-in status after successful login
-        return checkLoggedInStatus('http://localhost:3000/api/checkLoggedIn');
+        loginH2.textContent = "Login failed, username and password can not be blank";
+    }
+    else{
+        //fetches Post from server
+        fetch('http://localhost:3000/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: userAsString
+        })
+            .then(data => {
+                if(data.status !== 500 && data.status !== 401){
+                    return data.json();
+                }else{
+                    loginH2.textContent = "Login failed, try again";
+                    loginH3.textContent = "The credentials provided did not match a user profile";
+                    throw new Error("Login failed");
+                }
+            })
+            /*
+        .then(data => {
+            localStorage.setItem('token', data.token);
 
-    })
-        */
-    .then(data => {
-        // Handle the response from the server (e.g., redirect to a profile page)
-        console.log(data);
-        afterLoginBrowserVisibility();
-    })
-    .catch(error => console.error('Error:', error));
+            // Check logged-in status after successful login
+            return checkLoggedInStatus('http://localhost:3000/api/checkLoggedIn');
+
+        })
+            */
+            .then(data => {
+                // Handle the response from the server (e.g., redirect to a profile page)
+                console.log(data);
+                afterLoginBrowserVisibility();
+            })
+            .catch(error => console.error('Error:', error));
+    }
 }
 
 //the function is supposed remove/destroy a token or a cookie so that
@@ -212,9 +226,90 @@ function logout() {
     afterLogoutBrowserVisibility();
 }
 
-//displays all games as href in a list format
-function displayAllGames() {
+//displays all games as href in a list format sorted by A-Z
+function displayAllGamesAlphabetical() {
     fetch('http://localhost:3000/games/all', {
+        method: 'GET',
+        credentials: 'include', // Add this line
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            //clears existing content
+            gameList.innerHTML = '';
+            // Iterate over the games and append them to the list
+            data.forEach(game => {
+                const listItem = document.createElement('li');
+                const link = document.createElement('a');
+
+                link.textContent = game.game_name;
+                //placeholder
+                link.href = '#';
+
+                listItem.appendChild(link);
+                gameList.appendChild(listItem);
+            })
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+//displays all games as href in a list format sorted by rating
+function displayAllGamesByRating() {
+    fetch('http://localhost:3000/games/ByRating', {
+        method: 'GET',
+        credentials: 'include', // Add this line
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            //clears existing content
+            gameList.innerHTML = '';
+            // Iterate over the games and append them to the list
+            data.forEach(game => {
+                const listItem = document.createElement('li');
+                const link = document.createElement('a');
+
+                link.textContent = game.game_name;
+                //placeholder
+                link.href = '#';
+
+                listItem.appendChild(link);
+                gameList.appendChild(listItem);
+            })
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+//displays all games as href in a list format sorted by price
+function displayAllGamesByPrice() {
+    fetch('http://localhost:3000/games/ByPrice', {
+        method: 'GET',
+        credentials: 'include', // Add this line
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            //clears existing content
+            gameList.innerHTML = '';
+            // Iterate over the games and append them to the list
+            data.forEach(game => {
+                const listItem = document.createElement('li');
+                const link = document.createElement('a');
+
+                link.textContent = game.game_name;
+                //placeholder
+                link.href = '#';
+
+                listItem.appendChild(link);
+                gameList.appendChild(listItem);
+            })
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+//displays all games as href in a list format sorted by length
+function displayAllGamesByLength() {
+    fetch('http://localhost:3000/games/ByLength', {
         method: 'GET',
         credentials: 'include', // Add this line
     })
@@ -312,13 +407,104 @@ function searchGames() {
             .catch(error => console.error('Error:', error));
     }else{
         //if search buttton is clicked when there is no input
-        displayAllGames();
+        displayAllGamesAlphabetical();
     }
 }
 
 //function to fetch games based on the selected console/platform
 function fetchGamesByConsoleAlphabetical(selectedConsole) {
     return fetch(`http://localhost:3000/games/byConsole/${encodeURIComponent(selectedConsole)}`, {
+        method: 'GET',
+        credentials: 'include',
+    })
+        .then(response => response.json())
+        .catch(error => {
+            console.error('Error:', error);
+            throw error; //re-throw the error to be caught in the calling code
+        });
+}
+
+//function to fetch games based on the selected console/platform sorted by rating
+function fetchGamesByConsoleByRating(selectedConsole) {
+    return fetch(`http://localhost:3000/games/byConsole/byRating/${encodeURIComponent(selectedConsole)}`, {
+        method: 'GET',
+        credentials: 'include',
+    })
+        .then(response => response.json())
+        .catch(error => {
+            console.error('Error:', error);
+            throw error; //re-throw the error to be caught in the calling code
+        });
+}
+
+//function to fetch games based on the selected console/platform sorted by price
+function fetchGamesByConsoleByPrice(selectedConsole) {
+    return fetch(`http://localhost:3000/games/byConsole/byPrice/${encodeURIComponent(selectedConsole)}`, {
+        method: 'GET',
+        credentials: 'include',
+    })
+        .then(response => response.json())
+        .catch(error => {
+            console.error('Error:', error);
+            throw error; //re-throw the error to be caught in the calling code
+        });
+}
+
+//function to fetch games based on the selected console/platform sorted by length
+function fetchGamesByConsoleByLength(selectedConsole) {
+    return fetch(`http://localhost:3000/games/byConsole/byLength/${encodeURIComponent(selectedConsole)}`, {
+        method: 'GET',
+        credentials: 'include',
+    })
+        .then(response => response.json())
+        .catch(error => {
+            console.error('Error:', error);
+            throw error; //re-throw the error to be caught in the calling code
+        });
+}
+
+//fetched game data by multiplayer sorted by A-Z
+function fetchGamesByMultiplayerAlphabetical(selectedMultiplayer) {
+    return fetch(`http://localhost:3000/games/byMultiplayer/byAlphabetical/${encodeURIComponent(selectedMultiplayer)}`, {
+        method: 'GET',
+        credentials: 'include',
+    })
+        .then(response => response.json())
+        .catch(error => {
+            console.error('Error:', error);
+            throw error; //re-throw the error to be caught in the calling code
+        });
+}
+
+//fetched game data by multiplayer sorted by rating
+function fetchGamesByMultiplayerByRating(selectedMultiplayer) {
+    return fetch(`http://localhost:3000/games/byMultiplayer/byRating/${encodeURIComponent(selectedMultiplayer)}`, {
+        method: 'GET',
+        credentials: 'include',
+    })
+        .then(response => response.json())
+        .catch(error => {
+            console.error('Error:', error);
+            throw error; //re-throw the error to be caught in the calling code
+        });
+}
+
+//fetched game data by multiplayer sorted by price
+function fetchGamesByMultiplayerByPrice(selectedMultiplayer) {
+    return fetch(`http://localhost:3000/games/byMultiplayer/byPrice/${encodeURIComponent(selectedMultiplayer)}`, {
+        method: 'GET',
+        credentials: 'include',
+    })
+        .then(response => response.json())
+        .catch(error => {
+            console.error('Error:', error);
+            throw error; //re-throw the error to be caught in the calling code
+        });
+}
+
+//fetched game data by multiplayer sorted by length
+function fetchGamesByMultiplayerByLength(selectedMultiplayer) {
+    return fetch(`http://localhost:3000/games/byMultiplayer/byLength/${encodeURIComponent(selectedMultiplayer)}`, {
         method: 'GET',
         credentials: 'include',
     })
@@ -336,45 +522,131 @@ function handleFilterButtonClick() {
     const selectedMultiplayer = multiplayerOptions.value;
     const selectedSort = sortOptions.value;
 
-    //pseudocode
-    /*
     //only sorting
     if(selectedConsole === "All" && selectedMultiplayer === "Either"
         && selectedSort === "Rating") {
 
-        //logic
+        displayAllGamesByRating();
     }
     else if(selectedConsole === "All" && selectedMultiplayer === "Either"
         && selectedSort === "Price") {
 
-        //logic
+        displayAllGamesByPrice();
     }
     else if(selectedConsole === "All" && selectedMultiplayer === "Either"
         && selectedSort === "Length") {
 
-        //logic
+        displayAllGamesByLength();
     }
     else if(selectedConsole === "All" && selectedMultiplayer === "Either"
         && selectedSort === "A-Z") {
 
-        //logic
+        displayAllGamesAlphabetical()
     }
     //sorting and platform
     else if(selectedConsole !== "All" && selectedMultiplayer === "Either"
         && selectedSort === "Rating") {
 
-        //logic
+        fetchGamesByConsoleByRating(selectedConsole)
+        .then(data => {
+            //displays the filtered games
+            displayFilteredGames(data);
+        })
+            .catch(error => console.error('Error fetching games:', error));
     }
+    else if(selectedConsole !== "All" && selectedMultiplayer === "Either"
+        && selectedSort === "Price") {
 
-     */
+        fetchGamesByConsoleByPrice(selectedConsole)
+        .then(data => {
+            //displays the filtered games
+            displayFilteredGames(data);
+        })
+            .catch(error => console.error('Error fetching games:', error));
+    }
+    else if(selectedConsole !== "All" && selectedMultiplayer === "Either"
+        && selectedSort === "Length") {
 
-    //fetches games based on the selected console
-    fetchGamesByConsoleAlphabetical(selectedConsole)
+        fetchGamesByConsoleByLength(selectedConsole)
+        .then(data => {
+            //displays the filtered games
+            displayFilteredGames(data);
+        })
+            .catch(error => console.error('Error fetching games:', error));
+    }
+    else if(selectedConsole !== "All" && selectedMultiplayer === "Either"
+        && selectedSort === "A-Z") {
+
+        //fetches games based on the selected console
+        fetchGamesByConsoleAlphabetical(selectedConsole)
         .then(data => {
             //displays the filtered games
             displayFilteredGames(data);
         })
         .catch(error => console.error('Error fetching games:', error));
+    }
+    //sorting and multiplayer
+    else if(selectedConsole === "All" && selectedMultiplayer !== "Either"
+        && selectedSort === "Rating") {
+
+        fetchGamesByMultiplayerByRating(selectedMultiplayer)
+            .then(data => {
+                //displays the filtered games
+                displayFilteredGames(data);
+            })
+            .catch(error => console.error('Error fetching games:', error));
+    }
+    else if(selectedConsole === "All" && selectedMultiplayer !== "Either"
+        && selectedSort === "Price") {
+
+        fetchGamesByMultiplayerByPrice(selectedMultiplayer)
+            .then(data => {
+                //displays the filtered games
+                displayFilteredGames(data);
+            })
+            .catch(error => console.error('Error fetching games:', error));
+    }
+    else if(selectedConsole === "All" && selectedMultiplayer !== "Either"
+        && selectedSort === "Length") {
+
+        fetchGamesByMultiplayerByLength(selectedMultiplayer)
+            .then(data => {
+                //displays the filtered games
+                displayFilteredGames(data);
+            })
+            .catch(error => console.error('Error fetching games:', error));
+    }
+    else if(selectedConsole === "All" && selectedMultiplayer !== "Either"
+        && selectedSort === "A-Z") {
+
+        fetchGamesByMultiplayerAlphabetical(selectedMultiplayer)
+            .then(data => {
+                //displays the filtered games
+                displayFilteredGames(data);
+            })
+            .catch(error => console.error('Error fetching games:', error));
+    }
+    //sorting, platform and multiplayer
+    else if(selectedConsole !== "All" && selectedMultiplayer !== "Either"
+        && selectedSort === "Rating") {
+
+
+    }
+    else if(selectedConsole !== "All" && selectedMultiplayer !== "Either"
+        && selectedSort === "Price") {
+
+
+    }
+    else if(selectedConsole !== "All" && selectedMultiplayer !== "Either"
+        && selectedSort === "Length") {
+
+
+    }
+    else if(selectedConsole !== "All" && selectedMultiplayer !== "Either"
+        && selectedSort === "A-Z") {
+
+
+    }
 }
 
 //EventListeners
@@ -418,7 +690,7 @@ cosyGamesHeader.addEventListener('click', ()=>{
     profileHeader.style.display = 'none';
     loginHeader.style.display = 'block';
 
-    displayAllGames();
+    displayAllGamesAlphabetical();
     gameDetailsElement.innerHTML = '';
 
     //else if user is logged in;
