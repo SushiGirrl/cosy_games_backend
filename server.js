@@ -118,6 +118,7 @@ app.post("/register", (req, res) => {
                 console.error(error);
                 res.status(500).send("Registration failed, that username might already be in use");
             } else {
+                console.log(results);
                 res.json({ message: "Registration successful" });
             }
         }
@@ -141,13 +142,8 @@ app.post("/login", (req, res) => {
                 res.status(500).send("Login failed");
             } else {
                 if (results.length > 0 && bcrypt.compareSync(password, results[0].password)) {
-                    //user is authenticated, generate a JWT token
-                    const token = jwt.sign({ userId: results[0].id, username: results[0].user_name },
-                        "your-secret-key", { expiresIn: "1h" });
-                    console.log("From /login: ",token);
 
-                    res.json({ token });
-                    console.log(JSON.parse(token));
+                    res.json({ message: "Login successful" });
                 } else {
                     //tests if there are any results
                     //there won´t be any results if input is empty
@@ -349,6 +345,98 @@ app.get('/games/byMultiplayer/byLength/:multiplayer', (req, res) => {
             if (error) {
                 console.error(error);
                 res.status(500).send('Error fetching games by multiplayer sorted by length');
+            } else {
+                res.send(results);
+            }
+        }
+    );
+});
+
+//gets game details on games associated with chosen console and chosen multiplayer ordered by A-Z
+app.get('/games/byConsole/byMultiplayer/byAlphabetical/:console/:multiplayer', (req, res) => {
+    const selectedConsole = req.params.console;
+    const selectedMultiplayer =req.params.multiplayer;
+
+    connection.query(
+        'SELECT games.* FROM games_consoles ' +
+        'INNER JOIN games ON games_consoles.game_id = games.game_id ' +
+        'INNER JOIN consoles ON games_consoles.console_id = consoles.console_id ' +
+        'WHERE consoles.console = ? AND games.multiplayer = ? ' +
+        'ORDER BY games.game_name ASC',
+        [selectedConsole, selectedMultiplayer],
+        (error, results) => {
+            if (error) {
+                console.error(error);
+                res.status(500).send('Error fetching games by console and multiplayer sorted by A-Z');
+            } else {
+                res.send(results);
+            }
+        }
+    );
+});
+
+//gets game details on games associated with chosen console and chosen multiplayer ordered by rating
+app.get('/games/byConsole/byMultiplayer/byRating/:console/:multiplayer', (req, res) => {
+    const selectedConsole = req.params.console;
+    const selectedMultiplayer =req.params.multiplayer;
+
+    connection.query(
+        'SELECT games.* FROM games_consoles ' +
+        'INNER JOIN games ON games_consoles.game_id = games.game_id ' +
+        'INNER JOIN consoles ON games_consoles.console_id = consoles.console_id ' +
+        'WHERE consoles.console = ? AND games.multiplayer = ? ' +
+        'ORDER BY games.rating_metascore DESC',
+        [selectedConsole, selectedMultiplayer],
+        (error, results) => {
+            if (error) {
+                console.error(error);
+                res.status(500).send('Error fetching games by console and multiplayer sorted by rating');
+            } else {
+                res.send(results);
+            }
+        }
+    );
+});
+
+//gets game details on games associated with chosen console and chosen multiplayer ordered by price
+app.get('/games/byConsole/byMultiplayer/byPrice/:console/:multiplayer', (req, res) => {
+    const selectedConsole = req.params.console;
+    const selectedMultiplayer =req.params.multiplayer;
+
+    connection.query(
+        'SELECT games.* FROM games_consoles ' +
+        'INNER JOIN games ON games_consoles.game_id = games.game_id ' +
+        'INNER JOIN consoles ON games_consoles.console_id = consoles.console_id ' +
+        'WHERE consoles.console = ? AND games.multiplayer = ? ' +
+        'ORDER BY games.price_dk ASC',
+        [selectedConsole, selectedMultiplayer],
+        (error, results) => {
+            if (error) {
+                console.error(error);
+                res.status(500).send('Error fetching games by console and multiplayer sorted by price');
+            } else {
+                res.send(results);
+            }
+        }
+    );
+});
+
+//gets game details on games associated with chosen console and chosen multiplayer ordered by length
+app.get('/games/byConsole/byMultiplayer/byLength/:console/:multiplayer', (req, res) => {
+    const selectedConsole = req.params.console;
+    const selectedMultiplayer =req.params.multiplayer;
+
+    connection.query(
+        'SELECT games.* FROM games_consoles ' +
+        'INNER JOIN games ON games_consoles.game_id = games.game_id ' +
+        'INNER JOIN consoles ON games_consoles.console_id = consoles.console_id ' +
+        'WHERE consoles.console = ? AND games.multiplayer = ? ' +
+        'ORDER BY games.length_hours DESC',
+        [selectedConsole, selectedMultiplayer],
+        (error, results) => {
+            if (error) {
+                console.error(error);
+                res.status(500).send('Error fetching games by console and multiplayer sorted by length');
             } else {
                 res.send(results);
             }
