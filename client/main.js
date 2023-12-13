@@ -171,6 +171,8 @@ function login() {
 
                 //sets the user's login status to 'true' in sessionStorage
                 sessionStorage.setItem('isLoggedIn', 'true');
+                //sets the username in sessionStorage
+                sessionStorage.setItem('username', username);
             })
             .catch(error => console.error('Error:', error));
     }
@@ -179,13 +181,13 @@ function login() {
     document.querySelector('#login-password').value = '';
 }
 
-//the function is supposed remove/destroy a token or a cookie so that
-//the user no longer is authorized, but right now it just changes visibility
 function logout() {
 
     afterLogoutBrowserVisibility();
     //sets the user's login status to 'false' in sessionStorage
     sessionStorage.setItem('isLoggedIn', 'false');
+    //removes the username from sessionStorage
+    sessionStorage.removeItem('username');
 }
 
 //checks if the user is logged in
@@ -195,6 +197,12 @@ function isLoggedIn() {
 
     //checks if the value is set to 'true'
     return loggedIn === 'true';
+}
+
+//gets the logged-in username
+function getLoggedInUsername() {
+    //retrieves the username from sessionStorage
+    return sessionStorage.getItem('username');
 }
 
 //displays all games as href in a list format sorted by A-Z
@@ -702,7 +710,8 @@ homePageHeader.addEventListener('click', ()=>{
     //authorization check
     if (isLoggedIn()) {
 
-        console.log('User is logged in.');
+        const username = getLoggedInUsername();
+        console.log(`User ${username} is logged in.`);
 
         homePage.style.display = 'block';
         searchSection.style.display = 'none';
@@ -729,6 +738,8 @@ homePageHeader.addEventListener('click', ()=>{
 cosyGamesHeader.addEventListener('click', ()=>{
     //authorization check
     if(isLoggedIn()){
+        const username = getLoggedInUsername();
+        console.log(`User ${username} is logged in.`);
 
         homePage.style.display = 'none';
         searchSection.style.display = 'block';
@@ -740,6 +751,8 @@ cosyGamesHeader.addEventListener('click', ()=>{
         loginHeader.style.display = 'none';
     }
     else{
+
+        console.log('User is not logged in.');
 
         homePage.style.display = 'none';
         searchSection.style.display = 'block';
