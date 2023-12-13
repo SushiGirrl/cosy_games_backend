@@ -135,11 +135,6 @@ app.post("/login", (req, res) => {
     );
 });
 
-app.get("/logout", (req, res) => {
-    //you can clear any client-side storage or handle additional cleanup here
-    res.send("Logout successful");
-});
-
 //
 app.get('/games/search', (req, res) => {
     //extracts the value of the query parameter from the query string of the URL

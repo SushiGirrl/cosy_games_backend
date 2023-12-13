@@ -12,7 +12,6 @@ const searchSection = document.querySelector('#search-section');
 const loginSection = document.querySelector('#login-section');
 const registrationSection = document.querySelector('#user-registration');
 const profileSection = document.querySelector('#user-profile');
-const gameDetailsSection = document.querySelector('#game-details-section');
 //header options
 const homePageHeader = document.querySelector('#home-page-header');
 const cosyGamesHeader = document.querySelector('#cosy-games-search-header');
@@ -165,19 +164,13 @@ function login() {
                     throw new Error("Login failed");
                 }
             })
-            /*
-        .then(data => {
-            localStorage.setItem('token', data.token);
-
-            // Check logged-in status after successful login
-            return checkLoggedInStatus('http://localhost:3000/api/checkLoggedIn');
-
-        })
-            */
             .then(data => {
-                // Handle the response from the server (e.g., redirect to a profile page)
+
                 console.log(data);
                 afterLoginBrowserVisibility();
+
+                //sets the user's login status to 'true' in sessionStorage
+                sessionStorage.setItem('isLoggedIn', 'true');
             })
             .catch(error => console.error('Error:', error));
     }
@@ -191,6 +184,17 @@ function login() {
 function logout() {
 
     afterLogoutBrowserVisibility();
+    //sets the user's login status to 'false' in sessionStorage
+    sessionStorage.setItem('isLoggedIn', 'false');
+}
+
+//checks if the user is logged in
+function isLoggedIn() {
+    //retrieves the user's login status from sessionStorage
+    const loggedIn = sessionStorage.getItem('isLoggedIn');
+
+    //checks if the value is set to 'true'
+    return loggedIn === 'true';
 }
 
 //displays all games as href in a list format sorted by A-Z
@@ -695,55 +699,61 @@ window.addEventListener('load', ()=>{
 })
 //href elements
 homePageHeader.addEventListener('click', ()=>{
-    //implement authorization check
-    //if user is not logged in:
-    homePage.style.display = 'block';
-    searchSection.style.display = 'none';
-    loginSection.style.display = 'none';
-    registrationSection.style.display = 'none';
-    profileSection.style.display = 'none';
+    //authorization check
+    if (isLoggedIn()) {
 
-    profileHeader.style.display = 'none';
-    loginHeader.style.display = 'block';
+        console.log('User is logged in.');
 
-    //else if user is logged in;
-    /*
-    homePage.style.display = 'block';
-    searchSection.style.display = 'none';
-    loginSection.style.display = 'none';
-    registrationSection.style.display = 'none';
-    profileSection.style.display = 'none';
+        homePage.style.display = 'block';
+        searchSection.style.display = 'none';
+        loginSection.style.display = 'none';
+        registrationSection.style.display = 'none';
+        profileSection.style.display = 'none';
 
-    profileHeader.style.display = 'block';
-    loginHeader.style.display = 'none';
-     */
+        profileHeader.style.display = 'block';
+        loginHeader.style.display = 'none';
+    } else {
+
+        console.log('User is not logged in.');
+
+        homePage.style.display = 'block';
+        searchSection.style.display = 'none';
+        loginSection.style.display = 'none';
+        registrationSection.style.display = 'none';
+        profileSection.style.display = 'none';
+
+        profileHeader.style.display = 'none';
+        loginHeader.style.display = 'block';
+    }
 })
 cosyGamesHeader.addEventListener('click', ()=>{
-    //implement authorization check
-    //if user is not logged in:
-    homePage.style.display = 'none';
-    searchSection.style.display = 'block';
-    loginSection.style.display = 'none';
-    registrationSection.style.display = 'none';
-    profileSection.style.display = 'none';
+    //authorization check
+    if(isLoggedIn()){
 
-    profileHeader.style.display = 'none';
-    loginHeader.style.display = 'block';
+        homePage.style.display = 'none';
+        searchSection.style.display = 'block';
+        loginSection.style.display = 'none';
+        registrationSection.style.display = 'none';
+        profileSection.style.display = 'none';
+
+        profileHeader.style.display = 'block';
+        loginHeader.style.display = 'none';
+    }
+    else{
+
+        homePage.style.display = 'none';
+        searchSection.style.display = 'block';
+        loginSection.style.display = 'none';
+        registrationSection.style.display = 'none';
+        profileSection.style.display = 'none';
+
+        profileHeader.style.display = 'none';
+        loginHeader.style.display = 'block';
+    }
 
     displayAllGamesAlphabetical();
+    //clears the game details div from the page
     gameDetailsElement.innerHTML = '';
-
-    //else if user is logged in;
-    /*
-    homePage.style.display = 'none';
-    searchSection.style.display = 'block';
-    loginSection.style.display = 'none';
-    registrationSection.style.display = 'none';
-    profileSection.style.display = 'none';
-
-    profileHeader.style.display = 'block';
-    loginHeader.style.display = 'none';
-     */
 })
 loginHeader.addEventListener('click', ()=>{
     beforeLoginBrowserVisibility();
