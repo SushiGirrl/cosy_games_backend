@@ -315,6 +315,8 @@ function displayAllGamesByLength() {
 
 //displays all details for a specific game
 function displayGameDetails(gameName) {
+    const titleElement = document.createElement('h2');
+
     fetch(`http://localhost:3000/game/${encodeURIComponent(gameName)}`, {
         method: 'GET',
         credentials: 'include',
@@ -322,11 +324,80 @@ function displayGameDetails(gameName) {
         .then(response => response.json())
         .then(gameDetails => {
             console.log(gameDetails);
-            // Adjust this part based on how you want to display the game details
-            gameDetailsElement.innerHTML = JSON.stringify(gameDetails);
-            // Add more details as needed
+
+            //creates HTML elements to display game details
+            titleElement.textContent = gameDetails[0].game_name;
+            gameDetailsElement.appendChild(titleElement);
+
+            const ratingElement = document.createElement('p');
+            ratingElement.textContent = `Metascore Rating: ${gameDetails[0].rating_metascore}`;
+            gameDetailsElement.appendChild(ratingElement);
+
+            const priceElement = document.createElement('p');
+            priceElement.textContent = `Price: ${gameDetails[0].price_dk} kr`;
+            gameDetailsElement.appendChild(priceElement);
+
+            const lengthElement = document.createElement('p');
+            lengthElement.textContent = `Game Length: ${gameDetails[0].length_hours} hours`;
+            gameDetailsElement.appendChild(lengthElement);
+
+            const developmentStatusElement = document.createElement('p');
+            developmentStatusElement.textContent = `Development Status: ${gameDetails[0].dev_status}`;
+            gameDetailsElement.appendChild(developmentStatusElement);
+
+            const multiplayerElement = document.createElement('p');
+            multiplayerElement.textContent = `Multiplayer: ${gameDetails[0].multiplayer}`;
+            gameDetailsElement.appendChild(multiplayerElement);
+
+            const crossPlatformElement = document.createElement('p');
+            crossPlatformElement.textContent = `Cross-platform: ${gameDetails[0].cross_platform}`;
+            gameDetailsElement.appendChild(crossPlatformElement);
+
+            const artstyleElement = document.createElement('p');
+            artstyleElement.textContent = `Artstyle: ${gameDetails[0].artstyle}`;
+            gameDetailsElement.appendChild(artstyleElement);
         })
         .catch(error => console.error('Error fetching game details:', error));
+
+    if (isLoggedIn()) {
+       const username = getLoggedInUsername();
+       console.log(`User ${username} is logged in.`);
+
+        //pseudocode
+        /*
+        if(game_name exists in any list associated with username){
+            const messageElement = document.createElement('p');
+            messageElement.textContent = "Game already added to list. Go to profile to remove from list";
+            titleElement.appendChild(messageElement)
+        }
+        else{ //if game is not already added to a list, creates buttons that add to list
+        //creates HTML 'p' element
+        const messageElement = document.createElement('p');
+        messageElement.textContent = "Add game to list";
+        titleElement.appendChild(messageElement)
+
+        //creates buttons div element in HTML
+        const addToListButtonsDiv = document.createElement('div');
+        messageElement.appendChild(addToListButtonsDiv)
+
+        //creates buttons
+        const wantToPlayButton = document.createElement('button');
+        wantToPlayButton.textContent = "Want to Play List";
+        addToListButtonsDiv.appendChild(wantToPlayButton)
+
+        const playingButton = document.createElement('button');
+        wantToPlayButton.textContent = "Playing List";
+        addToListButtonsDiv.appendChild(playingButton)
+
+        const playedButton = document.createElement('button');
+        playedButton.textContent = "Played List";
+        addToListButtonsDiv.appendChild(playedButton)
+        }
+        */
+    } else {
+
+       console.log('User is not logged in.');
+    }
 }
 
 //gets the game name from the href-link and calls other function with the specific

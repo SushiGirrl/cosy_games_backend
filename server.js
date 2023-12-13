@@ -414,6 +414,82 @@ app.get('/games/byConsole/byMultiplayer/byLength/:console/:multiplayer', (req, r
     );
 });
 
+//checks if game exists in association with user
+app.get('/checkGame', (req, res) => {
+    const { username, gameName } = req.query;
+
+    connection.query(
+        'SELECT COUNT(*) AS game_exists FROM users ' +
+        //JOIN defaults to INNER JOIN
+        'JOIN users_games_status ON users.user_id = users_games_status.user_id ' +
+        'JOIN games ON users_games_status.game_id = games.game_id ' +
+        'WHERE users.user_name = ? AND games.game_name = ?',
+        [username, gameName],
+        (error, results) => {
+            if (error) {
+                console.error(error);
+                res.status(500).send('Internal Server Error');
+            } else {
+                res.send(results);
+            }
+        }
+    );
+});
+
+//post that fills out row in users_games_status table
+//to be used when a user adds games to their lists
+app.post('/addUserGame', (req, res) => {
+    const { username, gameName } = req.body;
+    console.log(username);
+
+    //gets the user_id based on the provided username
+    connection.query(
+        'SELECT user_id FROM users WHERE user_name = ?',
+        [username],
+        (error, userResults) => {
+        if (error) {
+            console.error(error);
+            return res.status(500).send('Internal Server Error');
+        }
+        console.log(userResults);
+
+        if (userResults.length === 0) {
+            return res.status(404).send('User not found');
+        }
+        const userId = userResults[0].user_id;
+
+        //gets the game_id based on the provided gameName
+        connection.query(
+            'SELECT game_id FROM games WHERE game_name = ?',
+            [gameName],
+            (error, gameResults) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).send('Internal Server Error');
+            }
+            if (gameResults.length === 0) {
+                return res.status(404).send('Game not found');
+            }
+            const gameId = gameResults[0].game_id;
+
+            //inserts the user-game relationship into users_games_status
+            connection.query(
+                'INSERT INTO users_games_status (user_id, game_id) VALUES (?, ?)',
+                [userId, gameId],
+                (error, insertResults) => {
+                if (error) {
+                    console.error(error);
+                    return res.status(500).send('Internal Server Error');
+                }
+
+                console.log(insertResults);
+                res.json({ message: 'User game relationship added successfully' });
+            });
+        });
+    });
+});
+
+
 //catches all endpoints that don´t exist yet and returns error 404
 app.get('*',(req,res) =>{
     res.sendStatus(404);
