@@ -8,8 +8,9 @@ const db = require("mysql2");
 const cors = require("cors");
 //npm install bcrypt
 const bcrypt = require("bcrypt");
-//npm install jsonwebtoken
-const jwt = require("jsonwebtoken");
+//npm install dotenv --save
+require('dotenv').config();
+
 
 const app = express();
 const port = 3000;
@@ -24,10 +25,11 @@ app.use(express.json());
 //establishes connection to my database
 const connection = db.createConnection({
     //MySQL hostname (can be found under "manage connections")
-    host: "127.0.0.1",
-    user: "root",
-    password: "Khfx5cvf1cb#",
-    database: "cosy_games"
+    host: process.env.HOST,
+    user: process.env.USER,
+    password: process.env.PASSWORD,
+    database: process.env.DATABASE,
+    multipleStatements: true,
 });
 
 //endpoint that sends all data of all games in alphabetical order
@@ -78,28 +80,6 @@ app.get('/game/:name/', (req,res)=>{
             res.send(results);
         });
 });
-
-//--------------Authentication implementation----------------//
-
-//authentication middleware to check the token
-const checkToken = (req, res, next) => {
-    const token = req.headers.authorization;
-
-    if (!token) {
-        return res.status(401).json({ message: "Unauthorized: No token provided" });
-    }
-
-    console.log("From checkToken: ",token);
-    jwt.verify(token, "your-secret-key", (err, decoded) => {
-        if (err) {
-            return res.status(403).json({ message: "Forbidden: Invalid token" });
-        }
-        console.log(decoded);
-
-        req.user = decoded; //attach the decoded user information to the request
-        next();
-    });
-};
 
 //POST that handles registration of new users
 app.post("/register", (req, res) => {
@@ -158,11 +138,6 @@ app.post("/login", (req, res) => {
 app.get("/logout", (req, res) => {
     //you can clear any client-side storage or handle additional cleanup here
     res.send("Logout successful");
-});
-
-//protected endpoint
-app.get("/api/checkLoggedIn", checkToken, (req, res) => {
-    res.json({ loggedIn: true, user: req.user });
 });
 
 //
