@@ -489,6 +489,61 @@ app.post('/addUserGameStatus', (req, res) => {
     });
 });
 
+//endpoint to delete a user-game relationship (row)
+app.delete('/removeUserGameStatus', (req, res) => {
+    const { username, gameName } = req.body;
+
+    //gets user_id based on the provided username
+    connection.query(
+        'SELECT user_id FROM users WHERE user_name = ?',
+        [username],
+        (error, userResults) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).send('Internal Server Error');
+            }
+            if (userResults.length === 0) {
+                return res.status(404).send('User not found');
+            }
+
+            const userId = userResults[0].user_id;
+
+            //gets game_id based on the provided gameName
+            connection.query(
+                'SELECT game_id FROM games WHERE game_name = ?',
+                [gameName],
+                (error, gameResults) => {
+                    if (error) {
+                        console.error(error);
+                        return res.status(500).send('Internal Server Error');
+                    }
+                    if (gameResults.length === 0) {
+                        return res.status(404).send('Game not found');
+                    }
+
+                    const gameId = gameResults[0].game_id;
+
+                    //deletes the user-game relationship (row) from users_games_status
+                    connection.query(
+                        'DELETE FROM users_games_status WHERE user_id = ? AND game_id = ?',
+                        [userId, gameId],
+                        (error, deleteResults) => {
+                            if (error) {
+                                console.error(error);
+                                return res.status(500).send('Internal Server Error');
+                            }
+
+                            console.log(deleteResults);
+                            res.json({ message: 'User game relationship removed successfully' });
+                        }
+                    );
+                }
+            );
+        }
+    );
+});
+
+
 //gets the names of games associated with a specified user_name and a given status
 app.get('/users/lists', (req, res) => {
     const { username, status } = req.query;

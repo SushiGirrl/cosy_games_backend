@@ -24,6 +24,8 @@ const loginH2 = document.querySelector('#login-section h2');
 const loginH3 = document.querySelector('#login-section h3');
 const userRegistrationH2 = document.querySelector('#user-registration h2');
 const titleElement = document.querySelector('#game-details-section h2');
+//h3
+const usernameH3 = document.querySelector('#user-info h3');
 //list
 const gameList = document.querySelector('#game-list');
 const wantToPlayList = document.querySelector('#want-to-play-list');
@@ -35,6 +37,9 @@ const gameDetailsElement = document.querySelector('#game-details');
 const platformOptions = document.querySelector('#platform');
 const multiplayerOptions = document.querySelector('#multiplayer');
 const sortOptions = document.querySelector('#sort-options');
+
+//creates element globally
+const messageElement = document.createElement("p");
 
 /*
         .then(response => response.json())
@@ -299,6 +304,31 @@ function displayUserList(username, status) {
         .catch(error => console.error('Error:', error));
 }
 
+//deletes row with username and gameName
+function disassociateGameWithUser(username, gameName) {
+    fetch('http://localhost:3000/removeUserGameStatus', {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, gameName }),
+    })
+        .then(function (response) {
+            if (!response.ok) {
+                throw new Error('Failed to remove user game relationship: ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(function (responseData) {
+            console.log(responseData);
+            console.log('User game relationship removed successfully');
+        })
+        .catch(function (error) {
+            console.error('Error removing user game relationship:', error.message);
+        });
+}
+
+//adds row to users_games_status
 function associateGameWithUser(username, gameName, status) {
     fetch('http://localhost:3000/addUserGameStatus', {
         method: 'POST',
@@ -321,6 +351,11 @@ function associateGameWithUser(username, gameName, status) {
         .catch(error => {
             console.error('Error adding user-game relationship:', error);
         });
+}
+//function to handle the page when a add-to-list-button is pressed
+function afterAddToListButtonClicked(){
+    messageElement.innerHTML = "";
+    messageElement.textContent = "Game was added to your list";
 }
 
 //function to handle adding the game to the specified list
@@ -378,14 +413,17 @@ function createAddToListButtons(parentElement, gameName) {
     //adds event listeners to the buttons
     wantToPlayButton.addEventListener('click', () => {
         addToPlayList(gameName, 'Want to Play List');
+        afterAddToListButtonClicked();
     });
 
     playingButton.addEventListener('click', () => {
         addToPlayList(gameName, 'Playing List');
+        afterAddToListButtonClicked();
     });
 
     playedButton.addEventListener('click', () => {
         addToPlayList(gameName, 'Played List');
+        afterAddToListButtonClicked();
     });
 }
 
@@ -402,8 +440,6 @@ function checkIfGameIsAssociatedWithUser(username, gameName) {
             //the count of games is greater than 0,
             //showing that the game exists in at least one list associated with the user
             const gameExists = data[0].game_exists > 0;
-
-            const messageElement = document.createElement("p");
 
             console.log(`Game exists: `,gameExists);
             //if the game IS associated with the user
@@ -943,6 +979,7 @@ profileHeader.addEventListener('click', ()=>{
     afterLoginBrowserVisibility();
 
     const username = getLoggedInUsername();
+    usernameH3.textContent = `Username: ` + username;
 
     displayUserList(username, "Want to Play");
     displayUserList(username, "Played");
@@ -981,6 +1018,36 @@ loginButton.addEventListener('click', ()=>{
 
 logoutButton.addEventListener('click', ()=>{
     logout();
+})
+
+removeGameButton.addEventListener('click', ()=>{
+
+    messageElement.textContent = "";
+
+    const username = getLoggedInUsername();
+    usernameH3.textContent = `Username: ` + username;
+
+    const gameName = titleElement.textContent;
+    console.log(gameName);
+
+    //function to remove game
+    disassociateGameWithUser(username, gameName);
+
+    //redirection to cosy games page
+    loginHeader.style.display = 'none';
+    profileHeader.style.display = 'block';
+
+    homePage.style.display = 'none';
+    searchSection.style.display = 'block';
+    loginSection.style.display = 'none';
+    registrationSection.style.display = 'none';
+    profileSection.style.display = 'none';
+    gameDetailsSection.style.display = 'none';
+
+    displayAllGamesAlphabetical();
+    //clears the game details div from the page
+    gameDetailsElement.innerHTML = '';
+    removeGameButton.style.display = 'none';
 })
 
 searchButton.addEventListener('click', searchGames);
