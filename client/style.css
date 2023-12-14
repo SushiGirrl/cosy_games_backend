@@ -1,14 +1,111 @@
+*{
+    color: #2b1f22;
+}
 body {
-    font-family: Arial, sans-serif;
+    font-family: "Lucida Bright", serif;
     margin: 0;
     padding: 0;
+    background-color: #b59998;
+    border: 0;
 }
 
 header {
-    background-color: #333;
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
     color: #fff;
-    padding: 10px;
+    padding: 0 100px 0 30px;
     text-align: center;
+
+    & h2 {
+        /* When three values are specified, the first padding applies to the top,
+        the second to the right and left, the third to the bottom */
+        padding: 30px 50px 0 0;
+        text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.5);
+        white-space: nowrap;
+
+        & a {
+            color: #fa0542;
+            text-decoration: none;
+
+            &:hover {
+                text-shadow: 4px 4px 6px rgba(255, 255, 255, 0.7);
+            }
+        }
+
+    }
+    & div{
+        display: flex;
+        justify-content: left;
+        padding: 0 0 0 50px;
+
+        & img{
+            max-width: 15%;
+            height: auto;
+        }
+    }
+}
+button{
+    border: 0;
+    border-radius: 4px;
+    padding: 5px 8px 5px;
+    background-color: #fa0542;
+    color: #ddd;
+    margin-top: 15px;
+
+    &:hover{
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+    &:active{
+        background-color: #fc4774;
+    }
+}
+select{
+    border: 0;
+    border-radius: 4px;
+    background-color: #fa0542;
+    color: #ddd;
+    padding: 2px 5px 4px;
+
+    &:hover {
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+    & option{
+        background-color: #fa0542;
+        color: white;
+    }
+}
+input{
+    border: 1px solid #fa0542;
+    border-radius: 4px;
+    background-color: #ccb6b6;
+
+    &:hover {
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+}
+
+hr {
+    color: #fa0542;
+    margin: 0 20px 0;
+}
+
+#game-list {
+    margin-top: 0;
+
+    & li {
+        list-style: none;
+        padding-bottom: 15px;
+
+        & a {
+            text-decoration: none;
+
+            &:hover {
+                color: #fa0542;
+                text-shadow: 4px 4px 6px rgba(255, 255, 255, 0.5);
+            }
+        }
+    }
 }
 
 section {
@@ -16,19 +113,39 @@ section {
     padding: 20px;
 }
 
-#home-page {
-    border: 1px solid #ddd;
-    padding: 20px;
-    margin-bottom: 20px;
+#search-section{
+    display: flex;
+    justify-content: center;
+
+    & div {
+        display: flex;
+        padding: 10px;
+        justify-content: center;
+        align-items: center;
+
+        & hr{
+            height: 1%;
+            width: 10%;
+        }
+        & label{
+            padding: 0 5px 0 15px;
+        }
+    }
+}
+#games-div{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
-#search-section {
-    border: 1px solid #ddd;
-    padding: 20px;
-    margin-bottom: 20px;
-}
+#lists{
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-#user-profile {
-    border: 1px solid #ddd;
-    padding: 20px;
-}
+        & div{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+    }

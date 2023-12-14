@@ -12,15 +12,16 @@
 <body>
 
 <header>
-    <nav>
-        <ul>
-            <li id="home-page-header"><a href="#home-page">Home</a></li>
-            <li id="cosy-games-search-header"><a href="#search-section">Cosy games</a></li>
-            <li id="login-header"><a href="#login-section">login</a></li>
-            <li id="profile-header"><a href="#user-profile">Profile</a></li>
-        </ul>
-    </nav>
+    <div>
+        <img src="../images/shoober.png" alt="png of doge">
+    </div>
+    <h2 id="home-page-header"><a href="#home-page">Home</a></h2>
+    <h2 id="cosy-games-search-header"><a href="#search-section">Cosy games</a></h2>
+    <h2 id="login-header"><a href="#login-section">login</a></h2>
+    <h2 id="profile-header"><a href="#user-profile">Profile</a></h2>
 </header>
+
+<hr>
 
 <section id="home-page">
     <h1>Welcome to Your Website</h1>
@@ -68,7 +69,11 @@
 </section>
 
 <section id="search-section">
-    <h2>Search</h2>
+    <div>
+        <hr>
+        <h2>Search</h2>
+        <hr>
+    </div>
     <div>
         <label for="search-input">Search by name:</label>
         <input type="text" id="search-input" name="search-input">
@@ -76,7 +81,13 @@
     <div>
         <button type="button" id="search-button">Search</button>
     </div>
-    <h2>Filter</h2>
+
+    <div>
+        <hr>
+        <h2>Filter</h2>
+        <hr>
+    </div>
+
     <div>
         <label for="sort-options">Sort by:</label>
         <select id="sort-options" name="sort-options">
@@ -105,8 +116,14 @@
     <div>
         <button type="button" id="filter-search-button">Filter Search</button>
     </div>
+
     <div>
-        <a>Games</a>
+        <hr>
+        <h2>Games</h2>
+        <hr>
+    </div>
+
+    <div>
         <ul id="game-list"></ul>
     </div>
 </section>
