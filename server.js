@@ -438,8 +438,8 @@ app.get('/checkGame', (req, res) => {
 
 //post that fills out row in users_games_status table
 //to be used when a user adds games to their lists
-app.post('/addUserGame', (req, res) => {
-    const { username, gameName } = req.body;
+app.post('/addUserGameStatus', (req, res) => {
+    const { username, gameName, status } = req.body;
     console.log(username);
 
     //gets the user_id based on the provided username
@@ -474,8 +474,8 @@ app.post('/addUserGame', (req, res) => {
 
             //inserts the user-game relationship into users_games_status
             connection.query(
-                'INSERT INTO users_games_status (user_id, game_id) VALUES (?, ?)',
-                [userId, gameId],
+                'INSERT INTO users_games_status (user_id, game_id, game_status) VALUES (?, ?, ?)',
+                [userId, gameId, status],
                 (error, insertResults) => {
                 if (error) {
                     console.error(error);
@@ -487,6 +487,29 @@ app.post('/addUserGame', (req, res) => {
             });
         });
     });
+});
+
+//gets the names of games associated with a specified user_name and a given status
+app.get('/users/lists', (req, res) => {
+    const { username, status } = req.query;
+
+    connection.query(
+        'SELECT games.game_name FROM users ' +
+        'JOIN users_games_status ON users.user_id = users_games_status.user_id ' +
+        'JOIN games ON users_games_status.game_id = games.game_id ' +
+        'WHERE users.user_name = ? AND users_games_status.game_status = ?',
+        [username, status],
+        (error, results) => {
+            if (error) {
+                console.error(error);
+                res.status(500).send('Internal Server Error');
+            } else {
+                //array of objects with a game_name property
+                const gameNames = results.map(result => ({ game_name: result.game_name }));
+                res.send(gameNames);
+            }
+        }
+    );
 });
 
 

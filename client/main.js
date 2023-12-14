@@ -6,12 +6,14 @@ const logoutButton = document.querySelector('#logout-button');
 const registerRedirectionButton = document.querySelector('#register-redirection-button');
 const searchButton = document.querySelector('#search-button');
 const filterSearchButton = document.querySelector('#filter-search-button');
+const removeGameButton = document.querySelector('#remove-game-button');
 //sections
 const homePage = document.querySelector('#home-page');
 const searchSection = document.querySelector('#search-section');
 const loginSection = document.querySelector('#login-section');
 const registrationSection = document.querySelector('#user-registration');
 const profileSection = document.querySelector('#user-profile');
+const gameDetailsSection = document.querySelector('#game-details-section');
 //header options
 const homePageHeader = document.querySelector('#home-page-header');
 const cosyGamesHeader = document.querySelector('#cosy-games-search-header');
@@ -21,8 +23,12 @@ const profileHeader = document.querySelector('#profile-header');
 const loginH2 = document.querySelector('#login-section h2');
 const loginH3 = document.querySelector('#login-section h3');
 const userRegistrationH2 = document.querySelector('#user-registration h2');
+const titleElement = document.querySelector('#game-details-section h2');
 //list
 const gameList = document.querySelector('#game-list');
+const wantToPlayList = document.querySelector('#want-to-play-list');
+const playedList = document.querySelector('#played-list');
+const playingList = document.querySelector('#playing-list');
 //div
 const gameDetailsElement = document.querySelector('#game-details');
 //select
@@ -44,6 +50,7 @@ function beforeLoginBrowserVisibility() {
     loginSection.style.display = 'block';
     registrationSection.style.display = 'none';
     profileSection.style.display = 'none';
+    gameDetailsSection.style.display = "none";
 
     profileHeader.style.display = 'none';
     loginHeader.style.display = 'block';
@@ -54,6 +61,7 @@ function afterLoginBrowserVisibility() {
     loginSection.style.display = 'none';
     registrationSection.style.display = 'none';
     profileSection.style.display = 'block';
+    gameDetailsSection.style.display = "none";
 
     profileHeader.style.display = 'block';
     loginHeader.style.display = 'none';
@@ -214,20 +222,8 @@ function displayAllGamesAlphabetical() {
         .then(response => response.json())
         .then(data => {
             console.log(data);
-            //clears existing content
-            gameList.innerHTML = '';
-            // Iterate over the games and append them to the list
-            data.forEach(game => {
-                const listItem = document.createElement('li');
-                const link = document.createElement('a');
 
-                link.textContent = game.game_name;
-                //placeholder
-                link.href = '#';
-
-                listItem.appendChild(link);
-                gameList.appendChild(listItem);
-            })
+            displayFilteredGames(data, gameList);
         })
         .catch(error => console.error('Error:', error));
 }
@@ -241,20 +237,8 @@ function displayAllGamesByRating() {
         .then(response => response.json())
         .then(data => {
             console.log(data);
-            //clears existing content
-            gameList.innerHTML = '';
-            // Iterate over the games and append them to the list
-            data.forEach(game => {
-                const listItem = document.createElement('li');
-                const link = document.createElement('a');
 
-                link.textContent = game.game_name;
-                //placeholder
-                link.href = '#';
-
-                listItem.appendChild(link);
-                gameList.appendChild(listItem);
-            })
+            displayFilteredGames(data, gameList);
         })
         .catch(error => console.error('Error:', error));
 }
@@ -268,20 +252,8 @@ function displayAllGamesByPrice() {
         .then(response => response.json())
         .then(data => {
             console.log(data);
-            //clears existing content
-            gameList.innerHTML = '';
-            // Iterate over the games and append them to the list
-            data.forEach(game => {
-                const listItem = document.createElement('li');
-                const link = document.createElement('a');
 
-                link.textContent = game.game_name;
-                //placeholder
-                link.href = '#';
-
-                listItem.appendChild(link);
-                gameList.appendChild(listItem);
-            })
+            displayFilteredGames(data, gameList);
         })
         .catch(error => console.error('Error:', error));
 }
@@ -295,27 +267,167 @@ function displayAllGamesByLength() {
         .then(response => response.json())
         .then(data => {
             console.log(data);
-            //clears existing content
-            gameList.innerHTML = '';
-            // Iterate over the games and append them to the list
-            data.forEach(game => {
-                const listItem = document.createElement('li');
-                const link = document.createElement('a');
 
-                link.textContent = game.game_name;
-                //placeholder
-                link.href = '#';
-
-                listItem.appendChild(link);
-                gameList.appendChild(listItem);
-            })
+            displayFilteredGames(data, gameList);
         })
         .catch(error => console.error('Error:', error));
 }
 
+//displays all games of a users list as href in a list format
+function displayUserList(username, status) {
+    fetch(`http://localhost:3000/users/lists/?username=${username}&status=${status}`, {
+        method: 'GET',
+        credentials: 'include',
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+
+            if(status === "Want to Play"){
+                displayFilteredGames(data, wantToPlayList);
+            }
+            else if(status === "Played"){
+                displayFilteredGames(data, playedList);
+            }
+            else if(status === "Playing"){
+                displayFilteredGames(data, playingList);
+            }
+            else{
+                console.log("status parameter had no matches")
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function associateGameWithUser(username, gameName, status) {
+    fetch('http://localhost:3000/addUserGameStatus', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+            username: username,
+            gameName: gameName,
+            status: status
+        }),
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .catch(error => {
+            console.error('Error adding user-game relationship:', error);
+        });
+}
+
+//function to handle adding the game to the specified list
+function addToPlayList(gameName, listName) {
+    const username = getLoggedInUsername()
+
+    if(listName === 'Want to Play List'){
+
+        console.log(`Adding ${gameName} to ${listName}`);
+
+        const status = "Want to Play"
+
+        associateGameWithUser(username, gameName, status);
+    }
+    else if(listName === 'Played List'){
+
+        console.log(`Adding ${gameName} to ${listName}`);
+
+        const status = "Played"
+
+        associateGameWithUser(username, gameName, status);
+    }
+    else if(listName === 'Playing List'){
+
+        console.log(`Adding ${gameName} to ${listName}`);
+
+        const status = "Playing"
+
+        associateGameWithUser(username, gameName, status);
+    }
+    else{
+       console.log('listName did not match existing lists')
+    }
+}
+
+function createAddToListButtons(parentElement, gameName) {
+
+    // creates buttons div element in HTML
+    const addToListButtonsDiv = document.createElement('div');
+    parentElement.appendChild(addToListButtonsDiv); // Append to the specified parent element
+
+    // creates buttons
+    const wantToPlayButton = document.createElement('button');
+    wantToPlayButton.textContent = "Want to Play List";
+    addToListButtonsDiv.appendChild(wantToPlayButton);
+
+    const playingButton = document.createElement('button');
+    playingButton.textContent = "Playing List";
+    addToListButtonsDiv.appendChild(playingButton);
+
+    const playedButton = document.createElement('button');
+    playedButton.textContent = "Played List";
+    addToListButtonsDiv.appendChild(playedButton);
+
+    //adds event listeners to the buttons
+    wantToPlayButton.addEventListener('click', () => {
+        addToPlayList(gameName, 'Want to Play List');
+    });
+
+    playingButton.addEventListener('click', () => {
+        addToPlayList(gameName, 'Playing List');
+    });
+
+    playedButton.addEventListener('click', () => {
+        addToPlayList(gameName, 'Played List');
+    });
+}
+
+function checkIfGameIsAssociatedWithUser(username, gameName) {
+    fetch(`http://localhost:3000/checkGame?username=${username}&gameName=${gameName}`, {
+        method: 'GET',
+        credentials: 'include',
+    })
+
+        .then(response => response.json())
+
+        .then(data => {
+            //creates a boolean variable gameExists that is true if
+            //the count of games is greater than 0,
+            //showing that the game exists in at least one list associated with the user
+            const gameExists = data[0].game_exists > 0;
+
+            const messageElement = document.createElement("p");
+
+            console.log(`Game exists: `,gameExists);
+            //if the game IS associated with the user
+            if (gameExists) {
+
+                messageElement.textContent = "The game is on your list, remove game?";
+                titleElement.appendChild(messageElement);
+
+                removeGameButton.style.display = "block"
+            }
+            //if the game is NOT associated with the user
+            else {
+                //creates buttons that adds the game to a list
+                messageElement.textContent = "Add game to list";
+                titleElement.appendChild(messageElement);
+
+                createAddToListButtons(messageElement, gameName);
+            }
+        })
+        .catch(error => console.error('Error checking game existence:', error));
+}
+
 //displays all details for a specific game
 function displayGameDetails(gameName) {
-    const titleElement = document.createElement('h2');
 
     fetch(`http://localhost:3000/game/${encodeURIComponent(gameName)}`, {
         method: 'GET',
@@ -327,35 +439,37 @@ function displayGameDetails(gameName) {
 
             //creates HTML elements to display game details
             titleElement.textContent = gameDetails[0].game_name;
-            gameDetailsElement.appendChild(titleElement);
+
+            const rootElement = document.createElement("h2");
+            gameDetailsElement.appendChild(rootElement);
 
             const ratingElement = document.createElement('p');
             ratingElement.textContent = `Metascore Rating: ${gameDetails[0].rating_metascore}`;
-            gameDetailsElement.appendChild(ratingElement);
+            rootElement.appendChild(ratingElement);
 
             const priceElement = document.createElement('p');
             priceElement.textContent = `Price: ${gameDetails[0].price_dk} kr`;
-            gameDetailsElement.appendChild(priceElement);
+            rootElement.appendChild(priceElement);
 
             const lengthElement = document.createElement('p');
             lengthElement.textContent = `Game Length: ${gameDetails[0].length_hours} hours`;
-            gameDetailsElement.appendChild(lengthElement);
+            rootElement.appendChild(lengthElement);
 
             const developmentStatusElement = document.createElement('p');
             developmentStatusElement.textContent = `Development Status: ${gameDetails[0].dev_status}`;
-            gameDetailsElement.appendChild(developmentStatusElement);
+            rootElement.appendChild(developmentStatusElement);
 
             const multiplayerElement = document.createElement('p');
             multiplayerElement.textContent = `Multiplayer: ${gameDetails[0].multiplayer}`;
-            gameDetailsElement.appendChild(multiplayerElement);
+            rootElement.appendChild(multiplayerElement);
 
             const crossPlatformElement = document.createElement('p');
             crossPlatformElement.textContent = `Cross-platform: ${gameDetails[0].cross_platform}`;
-            gameDetailsElement.appendChild(crossPlatformElement);
+            rootElement.appendChild(crossPlatformElement);
 
             const artstyleElement = document.createElement('p');
             artstyleElement.textContent = `Artstyle: ${gameDetails[0].artstyle}`;
-            gameDetailsElement.appendChild(artstyleElement);
+            rootElement.appendChild(artstyleElement);
         })
         .catch(error => console.error('Error fetching game details:', error));
 
@@ -363,37 +477,7 @@ function displayGameDetails(gameName) {
        const username = getLoggedInUsername();
        console.log(`User ${username} is logged in.`);
 
-        //pseudocode
-        /*
-        if(game_name exists in any list associated with username){
-            const messageElement = document.createElement('p');
-            messageElement.textContent = "Game already added to list. Go to profile to remove from list";
-            titleElement.appendChild(messageElement)
-        }
-        else{ //if game is not already added to a list, creates buttons that add to list
-        //creates HTML 'p' element
-        const messageElement = document.createElement('p');
-        messageElement.textContent = "Add game to list";
-        titleElement.appendChild(messageElement)
-
-        //creates buttons div element in HTML
-        const addToListButtonsDiv = document.createElement('div');
-        messageElement.appendChild(addToListButtonsDiv)
-
-        //creates buttons
-        const wantToPlayButton = document.createElement('button');
-        wantToPlayButton.textContent = "Want to Play List";
-        addToListButtonsDiv.appendChild(wantToPlayButton)
-
-        const playingButton = document.createElement('button');
-        wantToPlayButton.textContent = "Playing List";
-        addToListButtonsDiv.appendChild(playingButton)
-
-        const playedButton = document.createElement('button');
-        playedButton.textContent = "Played List";
-        addToListButtonsDiv.appendChild(playedButton)
-        }
-        */
+       checkIfGameIsAssociatedWithUser(username, gameName);
     } else {
 
        console.log('User is not logged in.');
@@ -409,23 +493,34 @@ function handleGameLinkClick(event) {
         const gameName = event.target.textContent; //gets the game name from the clicked link
         displayGameDetails(gameName); //fetches and displays details for the selected game
 
-        //visibility
+        //authorization check
+        if(isLoggedIn()){
+            const username = getLoggedInUsername();
+            console.log(`User ${username} is logged in.`);
+
+            profileHeader.style.display = 'block';
+            loginHeader.style.display = 'none';
+        }
+        else{
+            console.log('User is not logged in.');
+
+            profileHeader.style.display = 'none';
+            loginHeader.style.display = 'block';
+        }
         homePage.style.display = 'none';
         searchSection.style.display = 'none';
         loginSection.style.display = 'none';
         registrationSection.style.display = 'none';
         profileSection.style.display = 'none';
-
-        profileHeader.style.display = 'block';
-        loginHeader.style.display = 'none';
+        gameDetailsSection.style.display = "block";
     }
 }
 
 //only displays games that have been filtered in some way
 //is called both when user clicks the search button and filter search button
-function displayFilteredGames(filteredGames) {
+function displayFilteredGames(filteredGames, parentElement) {
     //clears existing content
-    gameList.innerHTML = '';
+    parentElement.innerHTML = '';
 
     //iterates over the filtered games and appends them to the list
     filteredGames.forEach(game => {
@@ -436,7 +531,7 @@ function displayFilteredGames(filteredGames) {
         link.href = '#';
 
         listItem.appendChild(link);
-        gameList.appendChild(listItem);
+        parentElement.appendChild(listItem);
     });
 }
 //takes the value of the search input, fetches data that contains the search input
@@ -452,7 +547,7 @@ function searchGames() {
             .then(response => response.json())
             .then(data => {
                 //display the filtered games
-                displayFilteredGames(data);
+                displayFilteredGames(data, gameList);
             })
             .catch(error => console.error('Error:', error));
     }else{
@@ -653,7 +748,7 @@ function handleFilterButtonClick() {
         fetchGamesByConsoleByRating(selectedConsole)
         .then(data => {
             //displays the filtered games
-            displayFilteredGames(data);
+            displayFilteredGames(data, gameList);
         })
             .catch(error => console.error('Error fetching games:', error));
     }
@@ -663,7 +758,7 @@ function handleFilterButtonClick() {
         fetchGamesByConsoleByPrice(selectedConsole)
         .then(data => {
             //displays the filtered games
-            displayFilteredGames(data);
+            displayFilteredGames(data, gameList);
         })
             .catch(error => console.error('Error fetching games:', error));
     }
@@ -673,7 +768,7 @@ function handleFilterButtonClick() {
         fetchGamesByConsoleByLength(selectedConsole)
         .then(data => {
             //displays the filtered games
-            displayFilteredGames(data);
+            displayFilteredGames(data, gameList);
         })
             .catch(error => console.error('Error fetching games:', error));
     }
@@ -684,7 +779,7 @@ function handleFilterButtonClick() {
         fetchGamesByConsoleAlphabetical(selectedConsole)
         .then(data => {
             //displays the filtered games
-            displayFilteredGames(data);
+            displayFilteredGames(data, gameList);
         })
         .catch(error => console.error('Error fetching games:', error));
     }
@@ -695,7 +790,7 @@ function handleFilterButtonClick() {
         fetchGamesByMultiplayerByRating(selectedMultiplayer)
             .then(data => {
                 //displays the filtered games
-                displayFilteredGames(data);
+                displayFilteredGames(data, gameList);
             })
             .catch(error => console.error('Error fetching games:', error));
     }
@@ -705,7 +800,7 @@ function handleFilterButtonClick() {
         fetchGamesByMultiplayerByPrice(selectedMultiplayer)
             .then(data => {
                 //displays the filtered games
-                displayFilteredGames(data);
+                displayFilteredGames(data, gameList);
             })
             .catch(error => console.error('Error fetching games:', error));
     }
@@ -715,7 +810,7 @@ function handleFilterButtonClick() {
         fetchGamesByMultiplayerByLength(selectedMultiplayer)
             .then(data => {
                 //displays the filtered games
-                displayFilteredGames(data);
+                displayFilteredGames(data, gameList);
             })
             .catch(error => console.error('Error fetching games:', error));
     }
@@ -725,7 +820,7 @@ function handleFilterButtonClick() {
         fetchGamesByMultiplayerAlphabetical(selectedMultiplayer)
             .then(data => {
                 //displays the filtered games
-                displayFilteredGames(data);
+                displayFilteredGames(data, gameList);
             })
             .catch(error => console.error('Error fetching games:', error));
     }
@@ -736,7 +831,7 @@ function handleFilterButtonClick() {
         fetchGamesByConsoleByMultiplayerByRating(selectedConsole, selectedMultiplayer)
             .then(data => {
                 //displays the filtered games
-                displayFilteredGames(data);
+                displayFilteredGames(data, gameList);
             })
             .catch(error => console.error('Error fetching games:', error));
     }
@@ -746,7 +841,7 @@ function handleFilterButtonClick() {
         fetchGamesByConsoleByMultiplayerByPrice(selectedConsole, selectedMultiplayer)
             .then(data => {
                 //displays the filtered games
-                displayFilteredGames(data);
+                displayFilteredGames(data, gameList);
             })
             .catch(error => console.error('Error fetching games:', error));
     }
@@ -756,7 +851,7 @@ function handleFilterButtonClick() {
         fetchGamesByConsoleByMultiplayerByLength(selectedConsole, selectedMultiplayer)
             .then(data => {
                 //displays the filtered games
-                displayFilteredGames(data);
+                displayFilteredGames(data, gameList);
             })
             .catch(error => console.error('Error fetching games:', error));
     }
@@ -766,7 +861,7 @@ function handleFilterButtonClick() {
         fetchGamesByConsoleByMultiplayerByAlphabetical(selectedConsole, selectedMultiplayer)
             .then(data => {
                 //displays the filtered games
-                displayFilteredGames(data);
+                displayFilteredGames(data, gameList);
             })
             .catch(error => console.error('Error fetching games:', error));
     }
@@ -775,6 +870,7 @@ function handleFilterButtonClick() {
 //EventListeners
 window.addEventListener('load', ()=>{
     afterLogoutBrowserVisibility();
+    removeGameButton.style.display = 'none';
 })
 //href elements
 homePageHeader.addEventListener('click', ()=>{
@@ -789,6 +885,7 @@ homePageHeader.addEventListener('click', ()=>{
         loginSection.style.display = 'none';
         registrationSection.style.display = 'none';
         profileSection.style.display = 'none';
+        gameDetailsSection.style.display = "none";
 
         profileHeader.style.display = 'block';
         loginHeader.style.display = 'none';
@@ -801,6 +898,7 @@ homePageHeader.addEventListener('click', ()=>{
         loginSection.style.display = 'none';
         registrationSection.style.display = 'none';
         profileSection.style.display = 'none';
+        gameDetailsSection.style.display = "none";
 
         profileHeader.style.display = 'none';
         loginHeader.style.display = 'block';
@@ -812,32 +910,28 @@ cosyGamesHeader.addEventListener('click', ()=>{
         const username = getLoggedInUsername();
         console.log(`User ${username} is logged in.`);
 
-        homePage.style.display = 'none';
-        searchSection.style.display = 'block';
-        loginSection.style.display = 'none';
-        registrationSection.style.display = 'none';
-        profileSection.style.display = 'none';
-
-        profileHeader.style.display = 'block';
         loginHeader.style.display = 'none';
+        profileHeader.style.display = 'block';
     }
     else{
 
         console.log('User is not logged in.');
 
-        homePage.style.display = 'none';
-        searchSection.style.display = 'block';
-        loginSection.style.display = 'none';
-        registrationSection.style.display = 'none';
-        profileSection.style.display = 'none';
-
-        profileHeader.style.display = 'none';
         loginHeader.style.display = 'block';
+        profileHeader.style.display = 'none';
     }
+
+    homePage.style.display = 'none';
+    searchSection.style.display = 'block';
+    loginSection.style.display = 'none';
+    registrationSection.style.display = 'none';
+    profileSection.style.display = 'none';
+    gameDetailsSection.style.display = 'none';
 
     displayAllGamesAlphabetical();
     //clears the game details div from the page
     gameDetailsElement.innerHTML = '';
+    removeGameButton.style.display = 'none';
 })
 loginHeader.addEventListener('click', ()=>{
     beforeLoginBrowserVisibility();
@@ -845,11 +939,25 @@ loginHeader.addEventListener('click', ()=>{
     loginH3.textContent = "";
 })
 profileHeader.addEventListener('click', ()=>{
+
     afterLoginBrowserVisibility();
+
+    const username = getLoggedInUsername();
+
+    displayUserList(username, "Want to Play");
+    displayUserList(username, "Played");
+    displayUserList(username, "Playing");
 })
 
+//lists
 //add event listeners to each anchor element
 gameList.addEventListener('click', handleGameLinkClick);
+
+wantToPlayList.addEventListener('click', handleGameLinkClick)
+
+playedList.addEventListener('click', handleGameLinkClick);
+
+playingList.addEventListener('click', handleGameLinkClick);
 
 //buttons
 registerRedirectionButton.addEventListener('click', ()=>{
