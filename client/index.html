@@ -24,19 +24,24 @@
 <hr>
 
 <section id="home-page">
-    <h1>Welcome to Your Website</h1>
-    <p>This is the front page content. Replace this text with your own content.</p>
+    <div>
+        <h1>Welcome to Your Website</h1>
+    </div>
+    <div>
+        <p>This is the front page content. Replace this text with your own content.</p>
+    </div>
 </section>
 
 <!-- Registration Form -->
 <section id="user-registration">
+    <div>
     <h2>Register new user</h2>
     <form id="register-form">
-        <div>
+        <div id="username-div">
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required>
         </div>
-        <div>
+        <div id="password-div">
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" required>
         </div>
@@ -44,28 +49,33 @@
             <button type="button" id="register-button">Register</button>
         </div>
     </form>
+    </div>
 </section>
 
 <!-- Login Form -->
 <section id="login-section">
+    <div>
     <h2>Login</h2>
     <h3></h3>
     <form id="login-form">
-        <div>
+        <div id="login-username-div">
             <label for="login-username">Username:</label>
             <input type="text" id="login-username" name="login-username" required>
         </div>
-        <div>
+        <div id="login-password-div">
             <label for="login-password">Password:</label>
             <input type="password" id="login-password" name="login-password" required>
         </div>
-        <div>
-            <button type="button" id="login-button">Login</button>
-        </div>
-        <div>
-            <button type="button" id="register-redirection-button">Register new user</button>
+        <div id="login-buttons-div">
+            <div>
+                <button type="button" id="login-button">Login</button>
+            </div>
+            <div>
+                <button type="button" id="register-redirection-button">Register new user</button>
+            </div>
         </div>
     </form>
+    </div>
 </section>
 
 <section id="search-section">
@@ -135,7 +145,11 @@
         <div>
             <button type="button" id="logout-button">Logout</button>
         </div>
-        <h3>Lists:</h3>
+        <div id="lists-div">
+            <hr>
+            <h3>Lists</h3>
+            <hr>
+        </div>
     </div>
     <div id="lists">
         <div>
@@ -160,12 +174,14 @@
 </section>
 
 <section id="game-details-section">
-    <h2></h2>
-    <div>
-        <button type="button" id="remove-game-button">Remove</button>
-    </div>
-    <div id="game-details">
-    </div>
+        <div>
+            <h2></h2>
+        </div>
+        <div>
+            <button type="button" id="remove-game-button">Remove</button>
+        </div>
+        <div id="game-details">
+        </div>
 </section>
 
 </body>

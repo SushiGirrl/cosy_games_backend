@@ -45,6 +45,18 @@ header {
         }
     }
 }
+
+#home-page{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    & div{
+        text-align: center;
+    }
+}
+
 button{
     border: 0;
     border-radius: 4px;
@@ -108,11 +120,6 @@ hr {
     }
 }
 
-section {
-    display: flex;
-    padding: 20px;
-}
-
 #search-section{
     display: flex;
     justify-content: center;
@@ -138,14 +145,130 @@ section {
     align-items: center;
 }
 
-#lists{
+#user-profile{
     display: flex;
-    align-items: center;
     justify-content: center;
 
-        & div{
+
+        & #user-info {
             display: flex;
-            flex-direction: column;
             align-items: center;
+            justify-content: center;
+            flex-direction: column;
+
+            & #lists-div {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+
+            }
+        }
+        & #lists {
+            display: flex;
+            justify-content: center;
+            flex-direction: row;
+            align-items: center;
+
+                & div{
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-direction: column;
+                    margin: 0 15px 0;
+
+                        & h3{
+                            white-space: nowrap;
+                        }
+                        & li {
+                            list-style: none;
+                            padding-bottom: 15px;
+                        }
+                        & a {
+                            text-decoration: none;
+                            white-space: nowrap;
+
+                                &:hover {
+                                    color: #fa0542;
+                                    text-shadow: 4px 4px 6px rgba(255, 255, 255, 0.5);
+                                }
+                        }
+
+                }
+        }
+}
+/*--------------HERE----------------*/
+#lists-div hr{
+    height: 1%;
+    width: 100%;
+
+}
+
+
+#user-registration{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+
+    & div{
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+
+        & label{
+            padding-right: 5px;
         }
     }
+    & #username-div{
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        padding-bottom: 20px;
+    }
+    & #password-div{
+        display: flex;
+        justify-content: center;
+        flex-direction: row;
+    }
+}
+#login-section{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+
+    & div{
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+
+        & label{
+            padding-right: 5px;
+        }
+    }
+    & #login-username-div{
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        padding-bottom: 20px;
+    }
+    & #login-password-div{
+        display: flex;
+        justify-content: center;
+        flex-direction: row;
+    }
+    & #login-buttons-div{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        & button{
+            margin: 20px 0 0;
+        }
+    }
+}
+#game-details-section div{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
