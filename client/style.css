@@ -145,63 +145,55 @@ hr {
     align-items: center;
 }
 
-#user-profile{
+#user-profile {
     display: flex;
     justify-content: center;
+}
 
+#user-info{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
-        & #user-info {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
+#lists{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
 
-            & #lists-div {
-                display: flex;
-                flex-direction: row;
-                align-items: center;
+#lists div{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
-            }
+#lists li{
+    list-style: none;
+    padding-bottom: 15px;
+
+    & a {
+        text-decoration: none;
+
+        &:hover {
+            color: #fa0542;
+            text-shadow: 4px 4px 6px rgba(255, 255, 255, 0.5);
         }
-        & #lists {
-            display: flex;
-            justify-content: center;
-            flex-direction: row;
-            align-items: center;
+    }
+}
 
-                & div{
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    flex-direction: column;
-                    margin: 0 15px 0;
-
-                        & h3{
-                            white-space: nowrap;
-                        }
-                        & li {
-                            list-style: none;
-                            padding-bottom: 15px;
-                        }
-                        & a {
-                            text-decoration: none;
-                            white-space: nowrap;
-
-                                &:hover {
-                                    color: #fa0542;
-                                    text-shadow: 4px 4px 6px rgba(255, 255, 255, 0.5);
-                                }
-                        }
-
-                }
-        }
+#lists-div{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
 }
 /*--------------HERE----------------*/
 #lists-div hr{
     height: 1%;
-    width: 100%;
-
+    width: 10%;
 }
+
 
 
 #user-registration{
