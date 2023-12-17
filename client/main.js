@@ -33,6 +33,7 @@ const playedList = document.querySelector('#played-list');
 const playingList = document.querySelector('#playing-list');
 //div
 const gameDetailsElement = document.querySelector('#game-details');
+const gameListDiv = document.querySelector('#game-list-div');
 //select
 const platformOptions = document.querySelector('#platform');
 const multiplayerOptions = document.querySelector('#multiplayer');
@@ -1080,6 +1081,9 @@ removeGameButton.addEventListener('click', ()=>{
     removeGameButton.style.display = 'none';
 })
 
-searchButton.addEventListener('click', searchGames);
+searchButton.addEventListener('click', () => {
+    searchGames();
+    gameListDiv.scrollIntoView({ behavior: 'smooth' });
+});
 
 filterSearchButton.addEventListener('click', handleFilterButtonClick);
