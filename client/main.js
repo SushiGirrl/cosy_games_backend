@@ -536,6 +536,9 @@ function handleGameLinkClick(event) {
 
     if (event.target.nodeName === 'A') {
         const gameName = event.target.textContent; //gets the game name from the clicked link
+
+        gameDetailsElement.innerHTML = ''; //clears gameDetails from earlier requests
+
         displayGameDetails(gameName); //fetches and displays details for the selected game
 
         //authorization check
