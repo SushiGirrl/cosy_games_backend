@@ -514,18 +514,19 @@ function displayGameDetails(gameName) {
             const artstyleElement = document.createElement('p');
             artstyleElement.textContent = `Artstyle: ${gameDetails[0].artstyle}`;
             rootElement.appendChild(artstyleElement);
+
+            if (isLoggedIn()) {
+                const username = getLoggedInUsername();
+                console.log(`User ${username} is logged in.`);
+
+                checkIfGameIsAssociatedWithUser(username, gameName);
+            } else {
+
+                console.log('User is not logged in.');
+            }
+
         })
         .catch(error => console.error('Error fetching game details:', error));
-
-    if (isLoggedIn()) {
-       const username = getLoggedInUsername();
-       console.log(`User ${username} is logged in.`);
-
-       checkIfGameIsAssociatedWithUser(username, gameName);
-    } else {
-
-       console.log('User is not logged in.');
-    }
 }
 
 //gets the game name from the href-link and calls other function with the specific
