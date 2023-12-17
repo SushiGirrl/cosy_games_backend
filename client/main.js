@@ -135,63 +135,71 @@ function register() {
 
 //logs user in if username and password matches in the database
 function login() {
-    const username = document.querySelector('#login-username').value;
-    const password = document.querySelector('#login-password').value;
-    //tests if we can log the values
-    console.log(username)
-    console.log(password)
+    return new Promise((resolve, reject) => {
+        const username = document.querySelector('#login-username').value;
+        const password = document.querySelector('#login-password').value;
+        //tests if we can log the values
+        console.log(username)
+        console.log(password)
 
-    //creates user as object
-    const userAsObject = {
-        user_name: username,
-        password: password
-    }
-    //tests if the user object is created
-    console.log(userAsObject)
-    //parses user object as string
-    const userAsString =  JSON.stringify(userAsObject)
-    //tests if the user object as a string works
-    console.log(userAsString)
+        //creates user as object
+        const userAsObject = {
+            user_name: username,
+            password: password
+        }
+        //tests if the user object is created
+        console.log(userAsObject)
+        //parses user object as string
+        const userAsString =  JSON.stringify(userAsObject)
+        //tests if the user object as a string works
+        console.log(userAsString)
 
-    //checks if the username and password are empty after trimming any extra whitespaces
-    if(username.trim() === "" || password.trim() === "") {
+        //checks if the username and password are empty after trimming any extra whitespaces
+        if(username.trim() === "" || password.trim() === "") {
 
-        loginH2.textContent = "Login failed, username and password can not be blank";
-    }
-    else{
-        //fetches Post from server
-        fetch('http://localhost:3000/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: userAsString
-        })
-            .then(data => {
-                if(data.status !== 500 && data.status !== 401){
-
-                    return data.json();
-                }else{
-                    loginH2.textContent = "Login failed, try again";
-                    loginH3.textContent = "The credentials provided did not match a user profile";
-                    throw new Error("Login failed");
-                }
+            loginH2.textContent = "Login failed, username and password can not be blank";
+            reject("Login failed");
+        }
+        else{
+            //fetches Post from server
+            fetch('http://localhost:3000/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: userAsString
             })
-            .then(data => {
+                .then(data => {
+                    if(data.status !== 500 && data.status !== 401){
 
-                console.log(data);
-                afterLoginBrowserVisibility();
+                        return data.json();
+                    }else{
+                        loginH2.textContent = "Login failed, try again";
+                        loginH3.textContent = "The credentials provided did not match a user profile";
+                        throw new Error("Login failed");
+                    }
+                })
+                .then(data => {
 
-                //sets the user's login status to 'true' in sessionStorage
-                sessionStorage.setItem('isLoggedIn', 'true');
-                //sets the username in sessionStorage
-                sessionStorage.setItem('username', username);
-            })
-            .catch(error => console.error('Error:', error));
-    }
-    //clears the input fields
-    document.querySelector('#login-username').value = '';
-    document.querySelector('#login-password').value = '';
+                    console.log(data);
+                    afterLoginBrowserVisibility();
+
+                    //sets the user's login status to 'true' in sessionStorage
+                    sessionStorage.setItem('isLoggedIn', 'true');
+                    //sets the username in sessionStorage
+                    sessionStorage.setItem('username', username);
+
+                    resolve(); //resolves the Promise when login is successful
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    reject(error); //rejects the Promise if there is an error
+                });
+        }
+        //clears the input fields
+        document.querySelector('#login-username').value = '';
+        document.querySelector('#login-password').value = '';
+    })
 }
 
 function logout() {
@@ -999,6 +1007,8 @@ playingList.addEventListener('click', handleGameLinkClick);
 //buttons
 registerRedirectionButton.addEventListener('click', ()=>{
 
+    userRegistrationH2.textContent = "";
+
     homePage.style.display = 'none';
     searchSection.style.display = 'none';
     loginSection.style.display = 'none';
@@ -1012,9 +1022,25 @@ registerButton.addEventListener('click', ()=>{
     register();
 })
 
-loginButton.addEventListener('click', ()=>{
-    login();
-})
+loginButton.addEventListener('click', ()=> {
+
+    login()
+        .then(() => {
+
+            const username = getLoggedInUsername();
+            usernameH3.textContent = `Username: ` + username;
+
+            displayUserList(username, "Want to Play");
+            displayUserList(username, "Played");
+            displayUserList(username, "Playing");
+
+            console.log('Code after successful login');
+        })
+        .catch(error => {
+
+            console.error('Login failed:', error);
+        });
+});
 
 logoutButton.addEventListener('click', ()=>{
     logout();
